@@ -37,6 +37,18 @@ namespace ekim
             return this->m_hex.empty();
         }
 
+        std::string& Hex::append(const std::string& p_str)
+        {
+            m_hex += p_str;
+
+            return m_hex;
+        }
+
+        Hex& Hex::append(const Hex&)
+        {
+
+        }
+
         Binary Hex::to_bin() const
         {
             Binary ret{};
@@ -51,8 +63,7 @@ namespace ekim
 
         Base64 Hex::to_b64() const
         {
-            Binary tmp_bin{this->to_bin()};
-
+            Base64 ret{};
 
         }
 
@@ -77,7 +88,7 @@ namespace ekim
             m_bin.push_back(p_uint8);
         }
 
-        std::size_t Binary::count() const
+        std::size_t Binary::size() const
         {
             return m_bin.size();
         }
@@ -105,6 +116,11 @@ namespace ekim
         Base64 Binary::to_b64() const
         {
 
+        }
+
+        uint8_t& Binary::operator[](const std::size_t p_index)
+        {
+            return m_bin[p_index];
         }
 
         std::ostream& operator<<(std::ostream& os, Binary& p_bin)
@@ -149,6 +165,13 @@ namespace ekim
         bool Base64::empty() const
         {
             return m_b64.empty();
+        }
+
+        std::string& Base64::append(const std::string& p_str)
+        {
+            m_b64 += p_str;
+
+            return m_b64;
         }
 
         Hex Base64::to_hex() const

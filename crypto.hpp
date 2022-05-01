@@ -20,12 +20,16 @@ namespace ekim
             Hex();
             Hex(const std::string&);
             ~Hex();
-            std::size_t length() const;
-            bool empty() const;
-            void append(const std::string&);
-            Binary to_bin() const;
-            Base64 to_b64() const;
+
+            std::size_t         length() const;
+            bool                empty() const;
+            std::string&        append(const std::string&);
+            Hex&                append(const Hex&);
+            Binary              to_bin() const;
+            Base64              to_b64() const;
+
             friend std::ostream& operator<<(std::ostream&, const Hex&);
+
         private:
             std::string m_hex;
         };
@@ -36,14 +40,19 @@ namespace ekim
             Binary();
             Binary(const std::vector<uint8_t>&);
             ~Binary();
-            std::size_t count() const;
-            bool empty() const;
-            void push_back(const uint8_t&);
-            void append(const std::vector<uint8_t>&);
-            void reserve(std::vector<uint8_t>::size_type p_size);
-            Hex to_hex() const;
-            Base64 to_b64() const;
+
+            std::size_t         size() const;
+            bool                empty() const;
+            void                push_back(const uint8_t&);
+            void                append(const std::vector<uint8_t>&);
+            void                reserve(std::vector<uint8_t>::size_type p_size);
+            Hex                 to_hex() const;
+            Base64              to_b64() const;
+
+            uint8_t operator[](const std::size_t p_index) const;
+            uint8_t& operator[](const std::size_t p_index);
             friend std::ostream& operator<<(std::ostream&, Binary&);
+
         private:
             std::vector<uint8_t> m_bin;
         };
@@ -54,12 +63,15 @@ namespace ekim
             Base64();
             Base64(const std::string&);
             ~Base64();
-            std::size_t length() const;
-            bool empty() const;
-            void append(const std::string&);
-            Hex to_hex() const;
-            Binary to_bin() const;
+
+            std::size_t         length() const;
+            bool                empty() const;
+            std::string&        append(const std::string&);
+            Hex                 to_hex() const;
+            Binary              to_bin() const;
+
             friend std::ostream& operator<<(std::ostream&, Base64&);
+
         private:
             std::string m_b64;
         };
