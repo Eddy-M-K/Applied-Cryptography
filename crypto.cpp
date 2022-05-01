@@ -6,8 +6,14 @@ namespace ekim
     {
         /* Hex class function definitions */
 
+        Hex::Hex() { }
+
         Hex::Hex(const std::string& p_string)
         {
+            if (p_string.length() % 2 != 0) {
+                throw std::invalid_argument("Hex string has an odd number of digits");
+            }
+
             for (const char& e : p_string) {
                 if (!isalnum(e)) {
                     throw std::invalid_argument("Hex string contains a non-alphanumeric");
@@ -19,21 +25,35 @@ namespace ekim
             m_hex = p_string;
         }
 
-        Hex::~Hex() {}
+        Hex::~Hex() { }
 
-        bool Hex::empty()
+        std::size_t Hex::length() const
+        {
+            return m_hex.length();
+        }
+
+        bool Hex::empty() const
         {
             return this->m_hex.empty();
         }
 
-        Binary Hex::to_bin()
+        Binary Hex::to_bin() const
         {
+            Binary ret{};
+            ret.reserve(m_hex.length());
 
+            for (int i{}; i < m_hex.length(); i += 2) {
+                ret.push_back(std::stoi(m_hex.substr(i, 2), nullptr, 16));
+            }
+
+            return ret;
         }
 
-        Base64 Hex::to_b64()
+        Base64 Hex::to_b64() const
         {
             Binary tmp_bin{this->to_bin()};
+
+
         }
 
         std::ostream& operator<<(std::ostream& os, const Hex& p_hex)
@@ -43,6 +63,8 @@ namespace ekim
 
         /* Binary class function definitions */
 
+        Binary::Binary() { }
+
         Binary::Binary(const std::vector<uint8_t>& p_vec)
         {
             m_bin = p_vec;
@@ -50,22 +72,37 @@ namespace ekim
 
         Binary::~Binary() {}
 
+        void Binary::push_back(const uint8_t& p_uint8)
+        {
+            m_bin.push_back(p_uint8);
+        }
+
+        std::size_t Binary::count() const
+        {
+            return m_bin.size();
+        }
+
         void Binary::append(const std::vector<uint8_t>& p_vec)
         {
             m_bin.insert(m_bin.end(), std::begin(p_vec), std::end(p_vec));
         }
 
-        bool Binary::empty()
+        void Binary::reserve(std::vector<uint8_t>::size_type p_size)
+        {
+            m_bin.reserve(p_size);
+        }
+
+        bool Binary::empty() const
         {
             return m_bin.empty();
         }
 
-        Hex Binary::to_hex()
+        Hex Binary::to_hex() const
         {
 
         }
 
-        Base64 Binary::to_b64()
+        Base64 Binary::to_b64() const
         {
 
         }
@@ -87,6 +124,8 @@ namespace ekim
 
         /* Base64 class function definitions */
 
+        Base64::Base64() { }
+
         Base64::Base64(const std::string& p_string)
         {
             for (const char& e : p_string) {
@@ -102,17 +141,22 @@ namespace ekim
 
         Base64::~Base64() {}
 
-        bool Base64::empty()
+        std::size_t Base64::length() const
+        {
+            return m_b64.length();
+        }
+
+        bool Base64::empty() const
         {
             return m_b64.empty();
         }
 
-        Hex Base64::to_hex()
+        Hex Base64::to_hex() const
         {
 
         }
 
-        Binary Base64::to_bin()
+        Binary Base64::to_bin() const
         {
 
         }
