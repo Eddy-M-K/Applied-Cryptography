@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace ekim
+namespace edkim
 {
     namespace crypto
     {
@@ -23,15 +23,16 @@ namespace ekim
 
             std::size_t         length() const;
             bool                empty() const;
-            std::string&        append(const std::string&);
-            Hex&                append(const Hex&);
+            Hex&                append(const char&);
+            Hex&                append(const std::string&);
             Binary              to_bin() const;
             Base64              to_b64() const;
-
-            friend std::ostream& operator<<(std::ostream&, const Hex&);
+            Hex&                operator+=(const Hex&);
 
         private:
             std::string m_hex;
+
+        friend std::ostream& operator<<(std::ostream&, const Hex&);
         };
 
         class Binary
@@ -51,10 +52,11 @@ namespace ekim
 
             uint8_t operator[](const std::size_t p_index) const;
             uint8_t& operator[](const std::size_t p_index);
-            friend std::ostream& operator<<(std::ostream&, Binary&);
 
         private:
             std::vector<uint8_t> m_bin;
+
+        friend std::ostream& operator<<(std::ostream&, const Binary&);
         };
 
         class Base64
@@ -66,14 +68,16 @@ namespace ekim
 
             std::size_t         length() const;
             bool                empty() const;
-            std::string&        append(const std::string&);
+            Base64&             append(const char&);
+            Base64&             append(const std::string&);
             Hex                 to_hex() const;
             Binary              to_bin() const;
-
-            friend std::ostream& operator<<(std::ostream&, Base64&);
+            Base64&             operator+=(const Base64&);
 
         private:
             std::string m_b64;
+
+        friend std::ostream& operator<<(std::ostream&, const Base64&);
         };
     }
 }

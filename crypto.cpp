@@ -1,6 +1,6 @@
 #include "crypto.hpp"
 
-namespace ekim
+namespace edkim
 {
     namespace crypto
     {
@@ -19,10 +19,10 @@ namespace ekim
                     throw std::invalid_argument("Hex string contains a non-alphanumeric");
                 } else if (toupper(e) > 'F') {
                     throw std::invalid_argument("Hex string contains a letter that is not from A-F");
+                } else {
+                    m_hex += e;
                 }
             }
-
-            m_hex = p_string;
         }
 
         Hex::~Hex() { }
@@ -34,19 +34,21 @@ namespace ekim
 
         bool Hex::empty() const
         {
-            return this->m_hex.empty();
+            return m_hex.empty();
         }
 
-        std::string& Hex::append(const std::string& p_str)
+        Hex& Hex::append(const char& p_chr)
+        {
+            m_hex += p_chr;
+
+            return *this;
+        }
+
+        Hex& Hex::append(const std::string& p_str)
         {
             m_hex += p_str;
 
-            return m_hex;
-        }
-
-        Hex& Hex::append(const Hex&)
-        {
-
+            return *this;
         }
 
         Binary Hex::to_bin() const
@@ -65,11 +67,19 @@ namespace ekim
         {
             Base64 ret{};
 
+            return ret;
         }
 
-        std::ostream& operator<<(std::ostream& os, const Hex& p_hex)
+        Hex& Hex::operator+=(const Hex& rhs)
         {
-            os << p_hex.m_hex;
+            this->m_hex += rhs.m_hex;
+
+            return *this;
+        }
+
+        std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
+        {
+            os << p_Hex.m_hex;
         }
 
         /* Binary class function definitions */
@@ -123,14 +133,14 @@ namespace ekim
             return m_bin[p_index];
         }
 
-        std::ostream& operator<<(std::ostream& os, Binary& p_bin)
+        std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)
         {
-            if (p_bin.empty()) {
+            if (p_Bin.empty()) {
                 os << "{ }";
             } else {
-                os << "{ " << p_bin.m_bin[0];
+                os << "{ " << p_Bin.m_bin[0];
 
-                for (std::vector<uint8_t>::iterator it = ++p_bin.m_bin.begin(); it != p_bin.m_bin.end(); it++) {
+                for (std::vector<uint8_t>::iterator it = ++(p_Bin.m_bin.begin()); it != p_Bin.m_bin.end(); it++) {
                     os << ", " << *it;
                 }
 
@@ -167,11 +177,18 @@ namespace ekim
             return m_b64.empty();
         }
 
-        std::string& Base64::append(const std::string& p_str)
+        Base64& Base64::append(const char& p_chr)
+        {
+            m_b64 += p_chr;
+
+            return *this;
+        }
+
+        Base64& Base64::append(const std::string& p_str)
         {
             m_b64 += p_str;
 
-            return m_b64;
+            return *this;
         }
 
         Hex Base64::to_hex() const
@@ -184,9 +201,9 @@ namespace ekim
 
         }
 
-        std::ostream& operator<<(std::ostream& os, Base64& p_b64)
+        std::ostream& operator<<(std::ostream& os, const Base64& p_B64)
         {
-            os << p_b64.m_b64;
+            os << p_B64.m_b64;
         }
     }
 }
