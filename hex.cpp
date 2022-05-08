@@ -96,6 +96,10 @@ namespace edkim
                 ret.append(base64_table[this_bin[i + 2] & 0b00111111]);
             }
 
+            for (int i{}; i < 3 - (this_bin.size() % 3); i++) {
+                ret.append('=');
+            }
+
             return ret;
         }
 
