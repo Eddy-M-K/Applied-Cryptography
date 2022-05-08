@@ -1,3 +1,12 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <exception>
+
+#include <cctype>
+#include <cstdint>
+#include <cstddef>
+
 #include "hex.hpp"
 #include "binary.hpp"
 #include "base64.hpp"
@@ -78,8 +87,7 @@ namespace edkim
                                           'j', 'k', 'l', 'm', 'n', 'o', 'p',
                                           'q', 'r', 's', 't', 'u', 'v', 'w',
                                           'x', 'y', 'z', '0', '1', '2', '3',
-                                          '4', '5', '6', '7', '8', '9', '+',
-                                          '/' };
+                                          '4', '5', '6', '7', '8', '9', '+', '/' };
 
             for (int i{}; i < (this_bin.size() / 3) * 3; i += 3) {
                 ret.append(base64_table[this_bin[i] >> 2]);
@@ -101,130 +109,6 @@ namespace edkim
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
         {
             os << p_Hex.m_hex;
-        }
-
-        /* Binary class function definitions */
-
-        Binary::Binary() { }
-
-        Binary::Binary(const std::vector<uint8_t>& p_vec)
-        {
-            m_bin = p_vec;
-        }
-
-        Binary::~Binary() { }
-
-        void Binary::push_back(const uint8_t& p_uint8)
-        {
-            m_bin.push_back(p_uint8);
-        }
-
-        std::size_t Binary::size() const
-        {
-            return m_bin.size();
-        }
-
-        void Binary::append(const std::vector<uint8_t>& p_vec)
-        {
-            m_bin.insert(m_bin.end(), std::begin(p_vec), std::end(p_vec));
-        }
-
-        void Binary::reserve(std::vector<uint8_t>::size_type p_size)
-        {
-            m_bin.reserve(p_size);
-        }
-
-        bool Binary::empty() const
-        {
-            return m_bin.empty();
-        }
-
-        Hex Binary::to_hex() const
-        {
-
-        }
-
-        Base64 Binary::to_b64() const
-        {
-
-        }
-
-        uint8_t& Binary::operator[](const std::size_t p_index)
-        {
-            return m_bin[p_index];
-        }
-
-        std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)
-        {
-            if (p_Bin.empty()) {
-                os << "{ }";
-            } else {
-                os << "{ " << p_Bin.m_bin[0];
-
-                for (std::vector<uint8_t>::iterator it = ++(p_Bin.m_bin.begin()); it != p_Bin.m_bin.end(); it++) {
-                    os << ", " << *it;
-                }
-
-                os << " }";
-            }
-        }
-
-        /* Base64 class function definitions */
-
-        Base64::Base64() { }
-
-        Base64::Base64(const std::string& p_string)
-        {
-            for (const char& e : p_string) {
-                if (!isalnum(e)) {
-                    throw std::invalid_argument("Base64 string contains a non-alphanumeric");
-                } else if (e != '+' || e != '/' || e != '=') {
-                    throw std::invalid_argument("Base64 string contains an invalid character");
-                }
-            }
-
-            m_b64 = p_string;
-        }
-
-        Base64::~Base64() { }
-
-        std::size_t Base64::length() const
-        {
-            return m_b64.length();
-        }
-
-        bool Base64::empty() const
-        {
-            return m_b64.empty();
-        }
-
-        Base64& Base64::append(const char& p_chr)
-        {
-            m_b64 += p_chr;
-
-            return *this;
-        }
-
-        Base64& Base64::append(const std::string& p_str)
-        {
-            m_b64 += p_str;
-
-            return *this;
-        }
-
-        Hex Base64::to_hex() const
-        {
-
-        }
-
-        Binary Base64::to_bin() const
-        {
-
-        }
-
-        std::ostream& operator<<(std::ostream& os, const Base64& p_B64)
-        {
-            os << p_B64.m_b64;
         }
     }
 }

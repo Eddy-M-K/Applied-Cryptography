@@ -1,15 +1,6 @@
 #ifndef INCLUDE_HEX
 #define INCLUDE_HEX
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <exception>
-
-#include <cctype>
-#include <cstdint>
-#include <cstddef>
-
 namespace edkim
 {
     namespace crypto
