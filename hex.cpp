@@ -1,4 +1,6 @@
-#include "crypto.hpp"
+#include "hex.hpp"
+#include "binary.hpp"
+#include "base64.hpp"
 
 namespace edkim
 {
@@ -11,16 +13,16 @@ namespace edkim
         Hex::Hex(const std::string& p_string)
         {
             if (p_string.length() % 2 != 0) {
-                throw std::invalid_argument("Hex string has an odd number of digits");
+                throw std::invalid_argument("Hex string has an odd number of characters");
             }
 
             for (const char& e : p_string) {
                 if (!isalnum(e)) {
                     throw std::invalid_argument("Hex string contains a non-alphanumeric");
-                } else if (toupper(e) > 'F') {
+                } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
                     throw std::invalid_argument("Hex string contains a letter that is not from A-F");
                 } else {
-                    m_hex += e;
+                    m_hex += toupper(e);
                 }
             }
         }
@@ -67,6 +69,25 @@ namespace edkim
         {
             Base64 ret{};
 
+            Binary this_bin{this->to_bin()};
+            const char base64_table[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+                                          'H', 'I', 'J', 'K', 'L', 'M', 'N',
+                                          'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+                                          'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
+                                          'c', 'd', 'e', 'f', 'g', 'h', 'i',
+                                          'j', 'k', 'l', 'm', 'n', 'o', 'p',
+                                          'q', 'r', 's', 't', 'u', 'v', 'w',
+                                          'x', 'y', 'z', '0', '1', '2', '3',
+                                          '4', '5', '6', '7', '8', '9', '+',
+                                          '/' };
+
+            for (int i{}; i < (this_bin.size() / 3) * 3; i += 3) {
+                ret.append(base64_table[this_bin[i] >> 2]);
+                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4) + (this_bin[i + 1] >> 4)]);
+                ret.append(base64_table[((this_bin[i + 1] & 0b00001111) << 2) + (this_bin[i + 2] >> 6)]);
+                ret.append(base64_table[this_bin[i + 2] & 0b00111111]);
+            }
+
             return ret;
         }
 
@@ -91,7 +112,7 @@ namespace edkim
             m_bin = p_vec;
         }
 
-        Binary::~Binary() {}
+        Binary::~Binary() { }
 
         void Binary::push_back(const uint8_t& p_uint8)
         {
@@ -165,7 +186,7 @@ namespace edkim
             m_b64 = p_string;
         }
 
-        Base64::~Base64() {}
+        Base64::~Base64() { }
 
         std::size_t Base64::length() const
         {
