@@ -1,19 +1,33 @@
-#include "hex.hpp"
-#include "binary.hpp"
-#include "base64.hpp"
+#include "sec_b64.hpp"
+#include "sec_hex.hpp"
+#include "sec_bin.hpp"
 
-namespace edkim
+#include <exception>
+
+#include <cctype>
+#include <cstdint>
+#include <cstddef>
+
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         Base64::Base64() { }
 
         Base64::Base64(const std::string& p_string)
         {
+            for (unsigned i{}; i < p_string.length(); i++) {
+                if (!isalnum(p_string[i])) {
+                    throw std::invalid_argument("Base64 string contains a non-alphanumeric");
+                } else if (p_string[i] != '+' && p_string[i] != '/') {
+                    throw std::invalid_argument("Base64 string contains an invalid character");
+                }
+            }
+
             for (const char& e : p_string) {
                 if (!isalnum(e)) {
                     throw std::invalid_argument("Base64 string contains a non-alphanumeric");
-                } else if (e != '+' || e != '/' || e != '=') {
+                } else if (e != '+' && e != '/' && e != '=') {
                     throw std::invalid_argument("Base64 string contains an invalid character");
                 }
             }
@@ -47,14 +61,35 @@ namespace edkim
             return *this;
         }
 
-        Hex Base64::to_hex() const
-        {
-
-        }
-
         Binary Base64::to_bin() const
         {
+            Binary ret{};
 
+            for (int i{}; i < m_b64.size(); i++) {
+                if (m_b64[i] == '=') {
+                    break;
+                }
+
+
+            }
+
+            return ret;
+        }
+
+        Hex Base64::to_hex() const
+        {
+            Hex ret{};
+
+            Binary tmp_bin{};
+
+            return ret;
+        }
+
+        Base64& Base64::operator+=(const Base64& rhs)
+        {
+            this->m_b64 += rhs.m_b64;
+
+            return *this;
         }
 
         std::ostream& operator<<(std::ostream& os, const Base64& p_B64)

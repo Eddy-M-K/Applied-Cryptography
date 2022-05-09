@@ -1,27 +1,21 @@
-#ifndef INCLUDE_B64
-#define INCLUDE_B64
+#ifndef SEC_B64
+#define SEC_B64
 
 #include <iostream>
 #include <string>
-#include <vector>
-#include <exception>
 
-#include <cctype>
-#include <cstdint>
-#include <cstddef>
-
-namespace edkim
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         class Hex;
         class Binary;
     }
 }
 
-namespace edkim
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         class Base64
         {
@@ -34,8 +28,8 @@ namespace edkim
             bool                empty() const;
             Base64&             append(const char&);
             Base64&             append(const std::string&);
-            Hex                 to_hex() const;
             Binary              to_bin() const;
+            Hex                 to_hex() const;
             Base64&             operator+=(const Base64&);
 
         private:
@@ -46,4 +40,4 @@ namespace edkim
     }
 }
 
-#endif /* INCLUDE_B64 */
+#endif /* SEC_B64 */

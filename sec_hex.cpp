@@ -1,19 +1,16 @@
-#include <iostream>
-#include <string>
-#include <vector>
+#include "sec_hex.hpp"
+#include "sec_bin.hpp"
+#include "sec_b64.hpp"
+
 #include <exception>
 
 #include <cctype>
 #include <cstdint>
 #include <cstddef>
 
-#include "hex.hpp"
-#include "binary.hpp"
-#include "base64.hpp"
-
-namespace edkim
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         /* Hex class function definitions */
 
@@ -89,11 +86,24 @@ namespace edkim
                                           'x', 'y', 'z', '0', '1', '2', '3',
                                           '4', '5', '6', '7', '8', '9', '+', '/' };
 
-            for (int i{}; i < (this_bin.size() / 3) * 3; i += 3) {
+            unsigned index{};
+            for (; index < (this_bin.size() / 3) * 3; index += 3) {
+                ret.append(base64_table[this_bin[index] >> 2]);
+                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4) + (this_bin[index + 1] >> 4)]);
+                ret.append(base64_table[((this_bin[index + 1] & 0b00001111) << 2) + (this_bin[index + 2] >> 6)]);
+                ret.append(base64_table[this_bin[index + 2] & 0b00111111]);
+            }
+
+            uint8_t remaining{this_bin.size() % 3};
+
+            if (remaining == 1) {
                 ret.append(base64_table[this_bin[i] >> 2]);
-                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4) + (this_bin[i + 1] >> 4)]);
-                ret.append(base64_table[((this_bin[i + 1] & 0b00001111) << 2) + (this_bin[i + 2] >> 6)]);
-                ret.append(base64_table[this_bin[i + 2] & 0b00111111]);
+                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4);
+                ret.append("==");
+            } else if (remaining == 2) {
+                ret.append(base64_table[this_bin[i] >> 2]);
+                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4);
+
             }
 
             for (int i{}; i < 3 - (this_bin.size() % 3); i++) {

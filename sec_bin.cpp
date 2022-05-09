@@ -1,15 +1,10 @@
-#include <iostream>
-#include <vector>
+#include "sec_bin.hpp"
+#include "sec_hex.hpp"
+#include "sec_b64.hpp"
 
-#include <cstdint>
-
-#include "binary.hpp"
-#include "hex.hpp"
-#include "base64.hpp"
-
-namespace edkim
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         Binary::Binary() { }
 

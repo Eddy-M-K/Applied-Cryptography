@@ -1,18 +1,23 @@
-#ifndef INCLUDE_BIN
-#define INCLUDE_BIN
+#ifndef SEC_BIN
+#define SEC_BIN
 
-namespace edkim
+#include <iostream>
+#include <vector>
+
+#include <cstdint>
+
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         class Hex;
         class Base64;
     }
 }
 
-namespace edkim
+namespace kim
 {
-    namespace crypto
+    namespace sec
     {
         class Binary
         {
@@ -40,4 +45,4 @@ namespace edkim
     }
 }
 
-#endif /* INCLUDE_BIN */
+#endif /* SEC_BIN */
