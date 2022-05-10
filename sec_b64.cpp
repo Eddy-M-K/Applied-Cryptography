@@ -16,19 +16,15 @@ namespace kim
 
         Base64::Base64(const std::string& p_string)
         {
-            for (unsigned i{}; i < p_string.length(); i++) {
-                if (!isalnum(p_string[i])) {
-                    throw std::invalid_argument("Base64 string contains a non-alphanumeric");
-                } else if (p_string[i] != '+' && p_string[i] != '/') {
-                    throw std::invalid_argument("Base64 string contains an invalid character");
-                }
-            }
+            const std::size_t p_string_length{p_string.length()};
 
-            for (const char& e : p_string) {
-                if (!isalnum(e)) {
-                    throw std::invalid_argument("Base64 string contains a non-alphanumeric");
-                } else if (e != '+' && e != '/' && e != '=') {
-                    throw std::invalid_argument("Base64 string contains an invalid character");
+            for (unsigned i{}; i < p_string_length; i++) {
+                if (!isalnum(p_string[i])) {
+                    throw std::invalid_argument("Input string contains a non-alphanumeric");
+                } else if (p_string[i] != '+' && p_string[i] != '/' && p_string[i] != '=') {
+                    throw std::invalid_argument("Input string contains an invalid character");
+                } else if (p_string[i] == '=' && (i != p_string_length - 1 || i != p_string_length - 2)) {
+                    throw std::invalid_argument("Input string has improper usage of the padding character (=)");
                 }
             }
 
