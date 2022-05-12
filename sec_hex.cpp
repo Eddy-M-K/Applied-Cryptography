@@ -1,3 +1,5 @@
+/* Security Types: Hexadecimal Source File */
+
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
 #include "sec_b64.hpp"
@@ -12,17 +14,19 @@ namespace kim
 {
     namespace sec
     {
-        /* Hex class function definitions */
-
+        /* Empty Constructor */
         Hex::Hex() { }
 
-        Hex::Hex(const std::string& p_string)
+        /* Constructor which takes in a string */
+        Hex::Hex(const std::string& p_str)
         {
-            if (p_string.length() % 2 != 0) {
+            /* String must have an even number of characters */
+            if (p_str.length() % 2 != 0) {
                 throw std::invalid_argument("Hex string has an odd number of characters");
             }
 
-            for (const char& e : p_string) {
+            /* Check if the string is an invalid hex string */
+            for (const char& e : p_str) {
                 if (!isalnum(e)) {
                     throw std::invalid_argument("Hex string contains a non-alphanumeric");
                 } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
@@ -33,32 +37,42 @@ namespace kim
             }
         }
 
+        /* Empty destructor */
         Hex::~Hex() { }
 
+        /* Returns the length of the hexadecimal string */
         std::size_t Hex::length() const
         {
             return m_hex.length();
         }
 
+        /* Returns true if the hexadecimal string is empty, else false */
         bool Hex::empty() const
         {
             return m_hex.empty();
         }
 
-        Hex& Hex::append(const char& p_chr)
-        {
-            m_hex += p_chr;
-
-            return *this;
-        }
-
+        /* Append a string to the end of the hexadecimal string */
         Hex& Hex::append(const std::string& p_str)
         {
-            m_hex += p_str;
+            if (p_str.length() % 2 != 0) {
+                throw std::invalid_argument("String to append has an odd number of characters");
+            }
+
+            for (const char& e : p_str) {
+                if (!isalnum(e)) {
+                    throw std::invalid_argument("String to append contains a non-alphanumeric");
+                } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
+                    throw std::invalid_argument("String to append contains a letter that is not from A-F");
+                } else {
+                    m_hex += toupper(e);
+                }
+            }
 
             return *this;
         }
 
+        /* Converts Hexadecimal string to Binary and returns the result */
         Binary Hex::to_bin() const
         {
             Binary ret{};
@@ -71,6 +85,7 @@ namespace kim
             return ret;
         }
 
+        /* Converts Hexadecimal string to Base64 string and returns the result */
         Base64 Hex::to_b64() const
         {
             Base64 ret{};
@@ -85,8 +100,9 @@ namespace kim
                                           'q', 'r', 's', 't', 'u', 'v', 'w',
                                           'x', 'y', 'z', '0', '1', '2', '3',
                                           '4', '5', '6', '7', '8', '9', '+', '/' };
-
             unsigned index{};
+            unsigned long remaining{this_bin.size() % 3};
+
             for (; index < (this_bin.size() / 3) * 3; index += 3) {
                 ret.append(base64_table[this_bin[index] >> 2]);
                 ret.append(base64_table[((this_bin[index] & 0b00000011) << 4) + (this_bin[index + 1] >> 4)]);
@@ -94,25 +110,21 @@ namespace kim
                 ret.append(base64_table[this_bin[index + 2] & 0b00111111]);
             }
 
-            uint8_t remaining{this_bin.size() % 3};
-
             if (remaining == 1) {
-                ret.append(base64_table[this_bin[i] >> 2]);
-                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4);
+                ret.append(base64_table[this_bin[index] >> 2]);
+                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4)]);
                 ret.append("==");
             } else if (remaining == 2) {
-                ret.append(base64_table[this_bin[i] >> 2]);
-                ret.append(base64_table[((this_bin[i] & 0b00000011) << 4);
-
-            }
-
-            for (int i{}; i < 3 - (this_bin.size() % 3); i++) {
+                ret.append(base64_table[this_bin[index] >> 2]);
+                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4) + (this_bin[index + 1] >> 4)]);
+                ret.append(base64_table[((this_bin[index + 1] & 0b00001111) << 2)]);
                 ret.append('=');
             }
 
             return ret;
         }
 
+        /* Appends a Hexadecimal string to the end of a Hexadecimal string */
         Hex& Hex::operator+=(const Hex& rhs)
         {
             this->m_hex += rhs.m_hex;
@@ -120,9 +132,12 @@ namespace kim
             return *this;
         }
 
+        /* Overloaded << operator */
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
         {
             os << p_Hex.m_hex;
+
+            return os;
         }
     }
 }
