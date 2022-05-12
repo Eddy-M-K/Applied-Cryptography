@@ -7,7 +7,6 @@
 #include <string>
 
 /* Forward Declarations */
-
 namespace kim
 {
     namespace sec
@@ -17,6 +16,7 @@ namespace kim
     }
 }
 
+/* Hexadecimal Class Declaration */
 namespace kim
 {
     namespace sec
