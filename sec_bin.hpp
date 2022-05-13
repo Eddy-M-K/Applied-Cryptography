@@ -1,3 +1,5 @@
+/* Security Types: Binary Header File */
+
 #ifndef SEC_BIN
 #define SEC_BIN
 
@@ -5,7 +7,9 @@
 #include <vector>
 
 #include <cstdint>
+#include <cstddef>
 
+/* Forward Declarations */
 namespace kim
 {
     namespace sec
@@ -15,6 +19,7 @@ namespace kim
     }
 }
 
+/* Binary Class Declaration */
 namespace kim
 {
     namespace sec
@@ -22,24 +27,31 @@ namespace kim
         class Binary
         {
         public:
+            /*** Constructors/Destructor ***/
+
+            /* Empty Constructor */
             Binary();
-            Binary(const std::vector<uint8_t>&);
+            Binary(const std::string&);
             ~Binary();
 
+            /* Public Methods */
             std::size_t         size() const;
             bool                empty() const;
-            void                push_back(const uint8_t&);
-            void                append(const std::vector<uint8_t>&);
-            void                reserve(std::vector<uint8_t>::size_type p_size);
+            void                push_back(const std::string&);
+            void                append(const std::string&);
+            void                reserve(std::vector<std::byte>::size_type);
             Hex                 to_hex() const;
             Base64              to_b64() const;
 
-            uint8_t operator[](const std::size_t p_index) const;
-            uint8_t& operator[](const std::size_t p_index);
+            /* Operators */
+            std::byte operator[](const std::size_t p_index) const;
+            std::byte& operator[](const std::size_t p_index);
 
         private:
-            std::vector<uint8_t> m_bin;
+            /* Underlying Data Structure */
+            std::vector<std::byte> m_bin;
 
+        /* Printer */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
         };
     }
