@@ -147,9 +147,7 @@ namespace kim
 
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
         {
-            os << p_Hex.m_hex;
-
-            return os;
+            return os << p_Hex.m_hex;
         }
     }
 }
