@@ -1,3 +1,5 @@
+/* Security Types: Base64 Source File */
+
 #include "sec_b64.hpp"
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
@@ -17,6 +19,10 @@ namespace kim
         Base64::Base64(const std::string& p_string)
         {
             const std::size_t p_string_length{p_string.length()};
+
+            if (p_string_length % 4 != 0) {
+                throw std::invalid_argument("Input string's length is not a multiple of 4");
+            }
 
             for (unsigned i{}; i < p_string_length; i++) {
                 if (!isalnum(p_string[i])) {
@@ -43,15 +49,17 @@ namespace kim
             return m_b64.empty();
         }
 
-        Base64& Base64::append(const char& p_chr)
+        void Base64::reserve(const std::size_t p_size)
         {
-            m_b64 += p_chr;
-
-            return *this;
+            m_b64.reserve(p_size);
         }
 
         Base64& Base64::append(const std::string& p_str)
         {
+            if (p_str.length() % 4 != 0) {
+                throw std::invalid_argument("The length of the string to append is not a multiple of 4");
+            }
+
             m_b64 += p_str;
 
             return *this;
@@ -91,6 +99,8 @@ namespace kim
         std::ostream& operator<<(std::ostream& os, const Base64& p_B64)
         {
             os << p_B64.m_b64;
+
+            return os;
         }
     }
 }
