@@ -14,16 +14,16 @@ namespace kim
 {
     namespace sec
     {
-        /* Empty Constructor */
         Hex::Hex() { }
 
-        /* Constructor which takes in a string */
         Hex::Hex(const std::string& p_str)
         {
             /* String must have an even number of characters */
             if (p_str.length() % 2 != 0) {
                 throw std::invalid_argument("Hex string has an odd number of characters");
             }
+
+            m_hex.reserve(p_str.length());
 
             /* Check if the string is an invalid hex string */
             for (const char& e : p_str) {
@@ -32,27 +32,28 @@ namespace kim
                 } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
                     throw std::invalid_argument("Hex string contains a letter that is not from A-F");
                 } else {
-                    m_hex += toupper(e);
+                    m_hex.push_back(toupper(e));
                 }
             }
         }
 
-        /* Empty destructor */
         Hex::~Hex() { }
 
-        /* Returns the length of the hexadecimal string */
         std::size_t Hex::length() const
         {
             return m_hex.length();
         }
 
-        /* Returns true if the hexadecimal string is empty, else false */
         bool Hex::empty() const
         {
             return m_hex.empty();
         }
 
-        /* Append a string to the end of the hexadecimal string */
+        void Hex::reserve(const std::size_t p_size)
+        {
+            m_hex.reserve(p_size);
+        }
+
         Hex& Hex::append(const std::string& p_str)
         {
             if (p_str.length() % 2 != 0) {
@@ -72,25 +73,25 @@ namespace kim
             return *this;
         }
 
-        /* Converts Hexadecimal string to Binary and returns the result */
         Binary Hex::to_bin() const
         {
             Binary ret{};
             ret.reserve(m_hex.length());
 
-            for (int i{}; i < m_hex.length(); i += 2) {
-                ret.push_back(std::stoi(m_hex.substr(i, 2), nullptr, 16));
+            for (std::size_t i{}; i < m_hex.length(); i += 2) {
+                ret.push_back(static_cast<std::byte>(std::stoi(m_hex.substr(i, 2), nullptr, 16)));
             }
 
             return ret;
         }
 
-        /* Converts Hexadecimal string to Base64 string and returns the result */
         Base64 Hex::to_b64() const
         {
             Base64 ret{};
+            ret.reserve(m_hex.length() * 2 / 3 + (m_hex.length() * 2 % 3));
 
             Binary this_bin{this->to_bin()};
+            unsigned index{};
             const char base64_table[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
                                           'H', 'I', 'J', 'K', 'L', 'M', 'N',
                                           'O', 'P', 'Q', 'R', 'S', 'T', 'U',
@@ -100,31 +101,43 @@ namespace kim
                                           'q', 'r', 's', 't', 'u', 'v', 'w',
                                           'x', 'y', 'z', '0', '1', '2', '3',
                                           '4', '5', '6', '7', '8', '9', '+', '/' };
-            unsigned index{};
-            unsigned long remaining{this_bin.size() % 3};
 
+            /* Loop through every 3 bytes of the binary representation of the hexadecimal
+               string but only until the set that does not need padding */
             for (; index < (this_bin.size() / 3) * 3; index += 3) {
-                ret.append(base64_table[this_bin[index] >> 2]);
-                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4) + (this_bin[index + 1] >> 4)]);
-                ret.append(base64_table[((this_bin[index + 1] & 0b00001111) << 2) + (this_bin[index + 2] >> 6)]);
-                ret.append(base64_table[this_bin[index + 2] & 0b00111111]);
+                std::string tmp_str{};
+
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)
+                                             + std::to_integer<uint8_t>(this_bin[index + 1] >> 4)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index + 1] & std::byte{0b00001111}) << 2)
+                                             + std::to_integer<uint8_t>(this_bin[index + 2] >> 6)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index + 2] & std::byte{0b00111111})]);
+
+                ret.append(tmp_str);
             }
+
+            /* If there are any remaining bytes, compute those and add padding */
+            const unsigned long remaining{this_bin.size() % 3};
+            std::string tmp_str{};
 
             if (remaining == 1) {
-                ret.append(base64_table[this_bin[index] >> 2]);
-                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4)]);
-                ret.append("==");
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)]);
+                tmp_str.append("==");
             } else if (remaining == 2) {
-                ret.append(base64_table[this_bin[index] >> 2]);
-                ret.append(base64_table[((this_bin[index] & 0b00000011) << 4) + (this_bin[index + 1] >> 4)]);
-                ret.append(base64_table[((this_bin[index + 1] & 0b00001111) << 2)]);
-                ret.append('=');
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)
+                                             + std::to_integer<uint8_t>(this_bin[index + 1] >> 4)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index + 1] & std::byte{0b00001111}) << 2)]);
+                tmp_str.push_back('=');
             }
+
+            ret.append(tmp_str);
 
             return ret;
         }
 
-        /* Appends a Hexadecimal string to the end of a Hexadecimal string */
         Hex& Hex::operator+=(const Hex& rhs)
         {
             this->m_hex += rhs.m_hex;
@@ -132,7 +145,6 @@ namespace kim
             return *this;
         }
 
-        /* Overloaded << operator */
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
         {
             os << p_Hex.m_hex;
