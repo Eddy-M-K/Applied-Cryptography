@@ -20,17 +20,18 @@ namespace kim
         {
             /* String must have an even number of characters */
             if (p_str.length() % 2 != 0) {
-                throw std::invalid_argument("Hex string has an odd number of characters");
+                throw std::invalid_argument(std::string("The length of the string ")
+                                            + p_str + std::string(" is not even"));
             }
 
             m_hex.reserve(p_str.length());
 
-            /* Check if the string is an invalid hex string */
+            /* Check if the string is a valid Hexadecimal string */
             for (const char& e : p_str) {
                 if (!isalnum(e)) {
-                    throw std::invalid_argument("Hex string contains a non-alphanumeric");
+                    throw std::invalid_argument(p_str + std::string(" contains a non-alphanumeric"));
                 } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
-                    throw std::invalid_argument("Hex string contains a letter that is not from A-F");
+                    throw std::invalid_argument(p_str + std::string(" contains a letter that is not from A-F"));
                 } else {
                     m_hex.push_back(toupper(e));
                 }
@@ -56,24 +57,27 @@ namespace kim
 
         Hex& Hex::append(const std::string& p_str)
         {
+            /* String must have an even number of characters */
             if (p_str.length() % 2 != 0) {
-                throw std::invalid_argument("String to append has an odd number of characters");
+                throw std::invalid_argument(std::string("The length of the string ")
+                                            + p_str + std::string(" is not even"));
             }
 
+            /* Check if the string is a valid Hexadecimal string */
             for (const char& e : p_str) {
                 if (!isalnum(e)) {
-                    throw std::invalid_argument("String to append contains a non-alphanumeric");
+                    throw std::invalid_argument(p_str + std::string(" contains a non-alphanumeric"));
                 } else if (isalpha(e) && (toupper(e) > 'F' || toupper(e) < 'A')) {
-                    throw std::invalid_argument("String to append contains a letter that is not from A-F");
+                    throw std::invalid_argument(p_str + std::string(" contains a letter that is not from A-F"));
                 } else {
-                    m_hex += toupper(e);
+                    m_hex.push_back(toupper(e));
                 }
             }
 
             return *this;
         }
 
-        Binary Hex::to_bin() const
+        Binary Hex::to_Bin() const
         {
             Binary ret{};
             ret.reserve(m_hex.length());
@@ -85,13 +89,13 @@ namespace kim
             return ret;
         }
 
-        Base64 Hex::to_b64() const
+        Base64 Hex::to_B64() const
         {
             Base64 ret{};
             ret.reserve(m_hex.length() * 2 / 3 + (m_hex.length() * 2 % 3));
 
-            Binary this_bin{this->to_bin()};
-            unsigned index{};
+            Binary this_bin{this->to_Bin()};
+            std::size_t index{};
             const char base64_table[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
                                           'H', 'I', 'J', 'K', 'L', 'M', 'N',
                                           'O', 'P', 'Q', 'R', 'S', 'T', 'U',
@@ -104,7 +108,7 @@ namespace kim
 
             /* Loop through every 3 bytes of the binary representation of the hexadecimal
                string but only until the set that does not need padding */
-            for (; index < (this_bin.size() / 3) * 3; index += 3) {
+            for (; index < (this_bin.length() / 3) * 3; index += 3) {
                 std::string tmp_str{};
 
                 tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
@@ -118,7 +122,7 @@ namespace kim
             }
 
             /* If there are any remaining bytes, compute those and add padding */
-            const unsigned long remaining{this_bin.size() % 3};
+            const unsigned long remaining{this_bin.length() % 3};
             std::string tmp_str{};
 
             if (remaining == 1) {

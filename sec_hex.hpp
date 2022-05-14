@@ -26,10 +26,10 @@ namespace kim
         public:
             /*** Constructors/Destructor ***/
 
-            /*  Constructor */
+            /* Empty Constructor */
             Hex();
 
-            /* Constructor which takes in a Hexadecimal string */
+            /* Constructor which takes in a string */
             Hex(const std::string&);
 
             /* Destructor */
@@ -47,14 +47,14 @@ namespace kim
             /* Reserves space for the Hexadecimal string specified by a size_t argument */
             void                reserve(const std::size_t);
 
-            /* Appends a Hexadecimal string to the end of the Hexadecimal string */
+            /* Appends a string with valid Hexadecimal */
             Hex&                append(const std::string&);
 
             /* Returns the Binary object equivalent of the Hexadecimal string */
-            Binary              to_bin() const;
+            Binary              to_Bin() const;
 
             /* Returns the Base64 object equivalent of the Hexadecimal string */
-            Base64              to_b64() const;
+            Base64              to_B64() const;
 
             /* Operator overload to append another Hexadecimal object */
             Hex&                operator+=(const Hex&);
