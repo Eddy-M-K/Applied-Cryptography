@@ -17,7 +17,8 @@ namespace kim
             /* String length must be a multiple of 8 */
             if (p_str.length() % 8 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
-                                            + p_str + std::string(" is not a multiple of 8"));             }
+                                            + p_str + std::string(" is not a multiple of 8"));
+            }
 
             m_bin.reserve(p_str.length() / 8);
 
