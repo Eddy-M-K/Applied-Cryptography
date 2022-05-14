@@ -31,27 +31,53 @@ namespace kim
 
             /* Empty Constructor */
             Binary();
+
+            /* Constructor which takes in a string */
             Binary(const std::string&);
+
+            /* Destructor */
             ~Binary();
 
-            /* Public Methods */
-            std::size_t         size() const;
-            bool                empty() const;
-            void                push_back(const std::string&);
-            void                append(const std::string&);
-            void                reserve(std::vector<std::byte>::size_type);
-            Hex                 to_hex() const;
-            Base64              to_b64() const;
 
-            /* Operators */
+            /*** Public Methods ***/
+
+            /* Returns the number of bytes in the Binary string */
+            std::size_t         length() const;
+
+            /* Returns true if the Binary string is empty, else false */
+            bool                empty() const;
+
+            /* Pushes back a byte */
+            void                push_back(const std::byte&);
+
+            /* Reserves space for the Binary string specified by a size_t argument */
+            void                reserve(const std::vector<std::byte>::size_type);
+
+            /* Appends a string with valid Binary */
+            Binary&             append(const std::string&);
+
+            /* Returns the Hexadecimal object equivalent of the Binary string */
+            Hex                 to_Hex() const;
+
+            /* Returns the Base64 object equivalent of the Binary string */
+            Base64              to_B64() const;
+
+
+            /*** Operators ***/
+
+            /* Constant subscript operator */
             std::byte operator[](const std::size_t p_index) const;
+
+            /* Subscript operator */
             std::byte& operator[](const std::size_t p_index);
 
+
         private:
-            /* Underlying Data Structure */
+            /*** Underlying Data Structure ***/
             std::vector<std::byte> m_bin;
 
-        /* Printer */
+
+        /*** Printer ***/
         friend std::ostream& operator<<(std::ostream&, const Binary&);
         };
     }
