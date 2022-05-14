@@ -35,6 +35,7 @@ namespace kim
             /* Destructor */
             ~Hex();
 
+
             /*** Public Methods ***/
 
             /* Returns the length of the Hexadecimal string */
@@ -58,9 +59,11 @@ namespace kim
             /* Operator overload to append another Hexadecimal object */
             Hex&                operator+=(const Hex&);
 
+
         private:
             /*** Underlying Data Structure ***/
             std::string m_hex;
+
 
         /*** Printer ***/
         friend std::ostream& operator<<(std::ostream&, const Hex&);
