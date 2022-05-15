@@ -18,6 +18,10 @@ namespace kim
 
         Hex::Hex(const std::string& p_str)
         {
+            if (p_str.empty()) {
+                return;
+            }
+
             /* String must have an even number of characters */
             if (p_str.length() % 2 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
@@ -57,6 +61,10 @@ namespace kim
 
         Hex& Hex::append(const std::string& p_str)
         {
+            if (p_str.empty()) {
+                return *this;
+            }
+
             /* String must have an even number of characters */
             if (p_str.length() % 2 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
