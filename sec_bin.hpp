@@ -84,6 +84,9 @@ namespace kim
             /* Returns the XOR result of two equal-length buffers */
             Binary              operator^(const Binary&);
 
+            /* Returns the result of XORing with a single-byte */
+            Binary              operator^(const std::byte&);
+
         private:
             /*** Private Member Variables ***/
 
@@ -91,8 +94,13 @@ namespace kim
             std::vector<std::byte> m_bin;
 
 
-        /*** Printer ***/
+        /*** Friend Functions ***/
+
+        /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
+
+        /* Printer to print binary in ASCII (works properly only if binary value is >= 0 and < 128) */
+        friend void print_to_chr(const Binary&);
         };
     }
 }

@@ -222,6 +222,17 @@ namespace kim
             return ret;
         }
 
+        Binary Binary::operator^(const std::byte& rhs)
+        {
+            Binary ret{};
+
+            for (auto& e : this->m_bin) {
+                ret.push_back(e ^ rhs);
+            }
+
+            return ret;
+        }
+
         std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)
         {
             std::cout << std::bitset<8>(std::to_integer<uint8_t>(p_Bin.m_bin[0]));
@@ -231,6 +242,13 @@ namespace kim
             }
 
             return os;
+        }
+
+        void print_to_chr(const Binary& p_Bin)
+        {
+            for (auto& e : p_Bin.m_bin) {
+                printf("%c", std::to_integer<uint8_t>(e));
+            }
         }
     }
 }
