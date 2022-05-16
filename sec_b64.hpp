@@ -29,8 +29,11 @@ namespace kim
             /* Empty Constructor */
             Base64();
 
-            /* Constructor which takes in a string */
+            /* Constructor which takes in a valid Base64 string with or without padding */
             Base64(const std::string&);
+
+            /* Copy Constructor */
+            Base64(const Base64&);
 
             /* Destructor */
             ~Base64();
@@ -49,10 +52,9 @@ namespace kim
 
             /* Appends a string with valid Base64
              * - Will replace any padding in the original Base64 string
-             * - If string argument contains padding, the final Base64 string must
-             *   be valid or an exception will be thrown
-             * - If string argument does not contain padding, the method will
-             *   will automatically append padding, given that str_len % 4 != 1 */
+             * - Padding in the string argument is optional but will throw an exception if
+             *   resultant string is invalid Base64
+             */
             Base64&             append(const std::string&);
 
             /* Returns the Binary object equivalent of the Base64 string */
@@ -62,13 +64,23 @@ namespace kim
             Hex                 to_Hex() const;
 
 
-            /*** Operator ***/
+            /*** Operators ***/
+
+            /* Appends another Base64 object */
             Base64&             operator+=(const Base64&);
+
+            /* Returns the concatenation of two Base64 objects */
+            Base64              operator+(const Base64&);
 
 
         private:
-            /*** Underlying Data Structure ***/
+            /*** Private Member Variables ***/
+
+            /* Underlying Data Structure */
             std::string m_b64;
+
+            /* Padding count */
+            uint8_t padding;
 
 
         /*** Printer ***/
