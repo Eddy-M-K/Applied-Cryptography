@@ -1,4 +1,4 @@
-/* Security Types: Binary Source File */
+/* "Security Types: Binary" Source File */
 
 #include "sec_bin.hpp"
 #include "sec_hex.hpp"

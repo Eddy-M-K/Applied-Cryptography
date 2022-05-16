@@ -1,4 +1,4 @@
-/* Security Types: Binary Header File */
+/* "Security Types: Binary" Header File */
 
 #ifndef SEC_BIN
 #define SEC_BIN

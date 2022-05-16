@@ -1,4 +1,4 @@
-/* Security Types: Base64 Header File */
+/* "Security Types: Base64" Header File */
 
 #ifndef SEC_B64
 #define SEC_B64
