@@ -81,6 +81,8 @@ namespace kim
             /* Returns the concatenation of two Binary objects */
             Binary              operator+(const Binary&);
 
+            /* Returns the XOR result of two equal-length buffers */
+            Binary              operator^(const Binary&);
 
         private:
             /*** Private Member Variables ***/

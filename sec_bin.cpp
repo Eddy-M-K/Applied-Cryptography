@@ -207,6 +207,21 @@ namespace kim
             return this_copy;
         }
 
+        Binary Binary::operator^(const Binary& rhs)
+        {
+            Binary ret{};
+
+            if (this->length() != rhs.length()) {
+                throw std::logic_error("For XOR operation the two Binary strings must be equal in length");
+            }
+
+            for (std::size_t i{}; i < this->length(); i++) {
+                ret.push_back(this->m_bin[i] ^ rhs.m_bin[i]);
+            }
+
+            return ret;
+        }
+
         std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)
         {
             std::cout << std::bitset<8>(std::to_integer<uint8_t>(p_Bin.m_bin[0]));
