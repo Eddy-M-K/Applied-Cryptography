@@ -1,4 +1,4 @@
-/* Security Types: Hexadecimal Source File */
+/* "Security Types: Hexadecimal" Source File */
 
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
@@ -117,37 +117,37 @@ namespace kim
                                           'x', 'y', 'z', '0', '1', '2', '3',
                                           '4', '5', '6', '7', '8', '9', '+', '/' };
 
-            const Binary this_bin{this->to_Bin()};
+            const Binary this_Bin{this->to_Bin()};
             std::size_t index{};
 
             /* Loop through every 3 bytes of the binary representation of the hexadecimal
                string but only until the set that does not need padding */
-            for (; index < (this_bin.length() / 3) * 3; index += 3) {
+            for (; index < (this_Bin.length() / 3) * 3; index += 3) {
                 std::string tmp_str{};
 
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)
-                                             + std::to_integer<uint8_t>(this_bin[index + 1] >> 4)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index + 1] & std::byte{0b00001111}) << 2)
-                                             + std::to_integer<uint8_t>(this_bin[index + 2] >> 6)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index + 2] & std::byte{0b00111111})]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
+                                             + std::to_integer<uint8_t>(this_Bin[index + 1] >> 4)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)
+                                             + std::to_integer<uint8_t>(this_Bin[index + 2] >> 6)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index + 2] & std::byte{0b00111111})]);
 
                 ret.append(tmp_str);
             }
 
             /* If there are any remaining bytes, compute those and add padding */
-            const unsigned long remaining{this_bin.length() % 3};
+            const unsigned long remaining{this_Bin.length() % 3};
             std::string tmp_str{};
 
             if (remaining == 1) {
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)]);
                 tmp_str.append("==");
             } else if (remaining == 2) {
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index] & std::byte{0b00000011}) << 4)
-                                             + std::to_integer<uint8_t>(this_bin[index + 1] >> 4)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_bin[index + 1] & std::byte{0b00001111}) << 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
+                                             + std::to_integer<uint8_t>(this_Bin[index + 1] >> 4)]);
+                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)]);
                 tmp_str.push_back('=');
             }
 
@@ -175,6 +175,11 @@ namespace kim
             }
 
             return (this->to_Bin() ^ rhs.to_Bin()).to_Hex();
+        }
+
+        Hex Hex::operator^(const std::byte& rhs)
+        {
+            return (this->to_Bin() ^ rhs).to_Hex();
         }
 
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
