@@ -5,6 +5,7 @@
 #include "sec_b64.hpp"
 
 #include <bitset>
+#include <algorithm>
 
 namespace kim
 {
@@ -14,12 +15,17 @@ namespace kim
 
         Binary::Binary(const std::string& p_str)
         {
-            if (p_str.empty()) {
+            std::string p_str_copy{p_str};
+
+            if (p_str_copy.empty()) {
                 return;
             }
 
+            /* Remove any spaces */
+            p_str_copy.erase(std::remove(p_str_copy.begin(), p_str_copy.end(), ' '), p_str_copy.end());
+
             /* String length must be a multiple of 8 */
-            if (p_str.length() % 8 != 0) {
+            if (p_str_copy.length() % 8 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
                                             + p_str + std::string(" is not a multiple of 8"));
             }
@@ -27,15 +33,20 @@ namespace kim
             m_bin.reserve(p_str.length() / 8);
 
             /* Check if the string is a valid binary string */
-            for (std::size_t i{}; i < p_str.length(); i += 8) {
+            for (std::size_t i{}; i < p_str_copy.length(); i += 8) {
                 for (uint8_t j{}; j < 8; j++) {
-                    if ((p_str[i + j] != '0') && (p_str[i + j] != '1')) {
+                    if ((p_str_copy[i + j] != '0') && (p_str_copy[i + j] != '1')) {
                         throw std::invalid_argument(p_str + std::string(" is not a valid Binary string"));
                     }
                 }
 
-                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str.substr(i, 8), nullptr, 2)));
+                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str_copy.substr(i, 8), nullptr, 2)));
             }
+        }
+
+        Binary::Binary(const Binary& p_Bin)
+        {
+            this->m_bin = p_Bin.m_bin;
         }
 
         Binary::~Binary() { }
@@ -62,24 +73,32 @@ namespace kim
 
         Binary& Binary::append(const std::string& p_str)
         {
-            if (p_str.empty()) {
+            std::string p_str_copy{p_str};
+
+            if (p_str_copy.empty()) {
                 return *this;
             }
+
+            /* Remove any spaces */
+            p_str_copy.erase(std::remove(p_str_copy.begin(), p_str_copy.end(), ' '), p_str_copy.end());
+
+            m_bin.reserve(m_bin.size() + p_str.length() / 8);
 
             /* String length must be a multiple of 8 */
             if (p_str.length() % 8 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
-                                            + p_str + std::string(" is not a multiple of 8"));             }
+                                            + p_str + std::string(" is not a multiple of 8"));
+            }
 
             /* Check if the string is a valid binary string */
-            for (std::size_t i{}; i < p_str.length(); i += 8) {
+            for (std::size_t i{}; i < p_str_copy.length(); i += 8) {
                 for (uint8_t j{}; j < 8; j++) {
-                    if ((p_str[i + j] != '0') && (p_str[i + j] != '1')) {
+                    if ((p_str_copy[i + j] != '0') && (p_str_copy[i + j] != '1')) {
                         throw std::invalid_argument(p_str + std::string(" is not a valid Binary string"));
                     }
                 }
 
-                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str.substr(i, 8), nullptr, 2)));
+                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str_copy.substr(i, 8), nullptr, 2)));
             }
 
             return *this;
@@ -169,11 +188,40 @@ namespace kim
             return m_bin[p_index];
         }
 
+        Binary& Binary::operator+=(const Binary& rhs)
+        {
+            this->m_bin.reserve(m_bin.size() + rhs.m_bin.size());
+
+            for (auto& e: rhs.m_bin) {
+                this->m_bin.push_back(e);
+            }
+
+            return *this;
+        }
+
+        Binary Binary::operator+(const Binary& rhs)
+        {
+            Binary this_copy{*this};
+            this_copy.m_bin.reserve(this_copy.m_bin.size() + rhs.m_bin.size());
+
+            for (auto& e : rhs.m_bin) {
+                this_copy.push_back(e);
+            }
+
+            return this_copy;
+        }
+
         std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)
         {
-            for (auto& e : p_Bin.m_bin) {
-                os << std::bitset<8>(std::to_integer<uint8_t>(e));
+            std::cout << std::bitset<8>(std::to_integer<uint8_t>(p_Bin.m_bin[0]));
+
+            for (std::vector<std::byte>::const_iterator it = ++p_Bin.m_bin.begin(); it != p_Bin.m_bin.end(); it++) {
+                os << " " << std::bitset<8>(std::to_integer<uint8_t>(*it));
             }
+
+            // for (auto& e : p_Bin.m_bin) {
+            //     os << std::bitset<8>(std::to_integer<uint8_t>(e));
+            // }
 
             return os;
         }
