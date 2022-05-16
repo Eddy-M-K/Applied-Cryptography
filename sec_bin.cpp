@@ -106,8 +106,6 @@ namespace kim
 
         Hex Binary::to_Hex() const
         {
-            Hex ret{};
-
             const char hex_table[] = { '0', '1', '2', '3',
                                        '4', '5', '6', '7',
                                        '8', '9', 'A', 'B',
@@ -121,9 +119,7 @@ namespace kim
                 tmp_str.push_back(hex_table[std::to_integer<uint8_t>(*it & std::byte{0b00001111})]);
             }
 
-            ret.append(tmp_str);
-
-            return ret;
+            return Hex(tmp_str);
         }
 
         Base64 Binary::to_B64() const
@@ -218,10 +214,6 @@ namespace kim
             for (std::vector<std::byte>::const_iterator it = ++p_Bin.m_bin.begin(); it != p_Bin.m_bin.end(); it++) {
                 os << " " << std::bitset<8>(std::to_integer<uint8_t>(*it));
             }
-
-            // for (auto& e : p_Bin.m_bin) {
-            //     os << std::bitset<8>(std::to_integer<uint8_t>(e));
-            // }
 
             return os;
         }
