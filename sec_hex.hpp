@@ -32,6 +32,9 @@ namespace kim
             /* Constructor which takes in a string */
             Hex(const std::string&);
 
+            /* Copy Constructor */
+            Hex(const Hex&);
+
             /* Destructor */
             ~Hex();
 
@@ -56,12 +59,20 @@ namespace kim
             /* Returns the Base64 object equivalent of the Hexadecimal string */
             Base64              to_B64() const;
 
-            /* Operator overload to append another Hexadecimal object */
+
+            /*** Operators ***/
+
+            /* Appends another Hexadecimal object */
             Hex&                operator+=(const Hex&);
+
+            /* Returns the concatenation of two Hexadecimal objects */
+            Hex                 operator+(const Hex&);
 
 
         private:
-            /*** Underlying Data Structure ***/
+            /*** Private Member Variables ***/
+
+            /* Underlying Data Structure */
             std::string m_hex;
 
 
