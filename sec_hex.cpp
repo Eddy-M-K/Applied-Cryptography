@@ -168,6 +168,15 @@ namespace kim
             return this_copy.append(rhs.m_hex);
         }
 
+        Hex Hex::operator^(const Hex& rhs)
+        {
+            if (this->length() != rhs.length()) {
+                throw std::logic_error("For XOR operation the two Hexadecimal strings must be equal in length");
+            }
+
+            return (this->to_Bin() ^ rhs.to_Bin()).to_Hex();
+        }
+
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
         {
             return os << p_Hex.m_hex;

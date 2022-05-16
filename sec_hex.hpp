@@ -68,6 +68,9 @@ namespace kim
             /* Returns the concatenation of two Hexadecimal objects */
             Hex                 operator+(const Hex&);
 
+            /* Returns the XOR result of two equal-length buffers */
+            Hex                 operator^(const Hex&);
+
 
         private:
             /*** Private Member Variables ***/
