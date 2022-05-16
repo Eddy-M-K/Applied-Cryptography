@@ -186,7 +186,7 @@ namespace kim
 
         Hex Base64::to_Hex() const
         {
-            const Binary this_bin{this->to_Bin()};
+            const Binary this_Bin{this->to_Bin()};
 
             const char hex_table[] = { '0', '1', '2', '3',
                                        '4', '5', '6', '7',
@@ -194,11 +194,11 @@ namespace kim
                                        'C', 'D', 'E', 'F' };
 
             std::string tmp_str{};
-            tmp_str.reserve(this_bin.length() * 2);
+            tmp_str.reserve(this_Bin.length() * 2);
 
-            for (std::size_t i{}; i < this_bin.length(); i++) {
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>((this_bin[i] & std::byte{0b11110000}) >> 4)]);
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>(this_bin[i] & std::byte{0b00001111})]);
+            for (std::size_t i{}; i < this_Bin.length(); i++) {
+                tmp_str.push_back(hex_table[std::to_integer<uint8_t>((this_Bin[i] & std::byte{0b11110000}) >> 4)]);
+                tmp_str.push_back(hex_table[std::to_integer<uint8_t>(this_Bin[i] & std::byte{0b00001111})]);
             }
 
             return Hex(tmp_str);
