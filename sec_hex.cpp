@@ -42,6 +42,11 @@ namespace kim
             }
         }
 
+        Hex::Hex(const Hex& p_Hex)
+        {
+            this->m_hex = p_Hex.m_hex;
+        }
+
         Hex::~Hex() { }
 
         std::size_t Hex::length() const
@@ -152,9 +157,14 @@ namespace kim
 
         Hex& Hex::operator+=(const Hex& rhs)
         {
-            this->m_hex += rhs.m_hex;
+            return this->append(rhs.m_hex);
+        }
 
-            return *this;
+        Hex Hex::operator+(const Hex& rhs)
+        {
+            Hex this_copy{*this};
+
+            return this_copy.append(rhs.m_hex);
         }
 
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)
