@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <cstdint>
 #include <cstddef>
@@ -32,8 +33,11 @@ namespace kim
             /* Empty Constructor */
             Binary();
 
-            /* Constructor which takes in a string */
+            /* Constructor which takes in a valid Binary string (spaces are optional) */
             Binary(const std::string&);
+
+            /* Copy Constructor */
+            Binary(const Binary&);
 
             /* Destructor */
             ~Binary();
@@ -53,7 +57,7 @@ namespace kim
             /* Reserves space for the Binary string specified by a size_t argument */
             void                reserve(const std::vector<std::byte>::size_type);
 
-            /* Appends a string with valid Binary */
+            /* Appends a valid Binary string (spaces are optional) */
             Binary&             append(const std::string&);
 
             /* Returns the Hexadecimal object equivalent of the Binary string */
@@ -66,14 +70,22 @@ namespace kim
             /*** Operators ***/
 
             /* Constant subscript operator */
-            std::byte operator[](const std::size_t p_index) const;
+            std::byte           operator[](const std::size_t p_index) const;
 
             /* Subscript operator */
-            std::byte& operator[](const std::size_t p_index);
+            std::byte&          operator[](const std::size_t p_index);
+
+            /* Appends another Binary object */
+            Binary&             operator+=(const Binary&);
+
+            /* Returns the concatenation of two Binary objects */
+            Binary              operator+(const Binary&);
 
 
         private:
-            /*** Underlying Data Structure ***/
+            /*** Private Member Variables ***/
+
+            /* Underlying Data Structure */
             std::vector<std::byte> m_bin;
 
 
