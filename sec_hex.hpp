@@ -1,4 +1,4 @@
-/* Security Types: Hexadecimal Header File */
+/* "Security Types: Hexadecimal" Header File */
 
 #ifndef SEC_HEX
 #define SEC_HEX
@@ -71,6 +71,8 @@ namespace kim
             /* Returns the XOR result of two equal-length buffers */
             Hex                 operator^(const Hex&);
 
+            /* Returns the result of XORing with a single-byte */
+            Hex                 operator^(const std::byte&);
 
         private:
             /*** Private Member Variables ***/
