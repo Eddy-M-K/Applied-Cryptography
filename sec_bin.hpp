@@ -1,5 +1,4 @@
 /* "Security Types: Binary" Header File */
-
 #ifndef SEC_BIN
 #define SEC_BIN
 
@@ -67,7 +66,7 @@ namespace kim
             Base64              to_B64() const;
 
 
-            /*** Operators ***/
+            /*** Public Member Operators ***/
 
             /* Constant subscript operator */
             std::byte           operator[](const std::size_t p_index) const;
@@ -81,11 +80,6 @@ namespace kim
             /* Returns the concatenation of two Binary objects */
             Binary              operator+(const Binary&);
 
-            /* Returns the XOR result of two equal-length buffers */
-            Binary              operator^(const Binary&);
-
-            /* Returns the result of XORing with a single-byte */
-            Binary              operator^(const std::byte&);
 
         private:
             /*** Private Member Variables ***/
@@ -94,13 +88,30 @@ namespace kim
             std::vector<std::byte> m_bin;
 
 
-        /*** Friend Functions ***/
+            /*** Private Member Functions  ***/
+
+            /* Used for compatibility with template functions */
+            Binary              to_Bin() const;
+
+
+            /*** Private Member Operators ***/
+
+            /* Returns the XOR result of two equal-length buffers */
+            Binary              operator^(const Binary&);
+
+            /* Returns the result of XORing with a single-byte */
+            Binary              operator^(const std::byte&);
+
+        /*** Friends ***/
 
         /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
 
         /* Printer to print binary in ASCII (works properly only if binary value is >= 0 and < 128) */
         friend void print_to_chr(const Binary&);
+
+        template <class Container>
+        friend Container XOR(const Container& lhs, const Container& rhs);
         };
     }
 }

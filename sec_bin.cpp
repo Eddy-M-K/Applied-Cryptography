@@ -1,6 +1,6 @@
 /* "Security Types: Binary" Source File */
-
 #include "sec_bin.hpp"
+
 #include "sec_hex.hpp"
 #include "sec_b64.hpp"
 
@@ -205,6 +205,11 @@ namespace kim
             }
 
             return this_copy;
+        }
+
+        Binary Binary::to_Bin() const
+        {
+            return *this;
         }
 
         Binary Binary::operator^(const Binary& rhs)
