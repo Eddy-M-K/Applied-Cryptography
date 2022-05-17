@@ -1,5 +1,4 @@
 /* "Security Types: Hexadecimal" Header File */
-
 #ifndef SEC_HEX
 #define SEC_HEX
 
@@ -31,6 +30,8 @@ namespace kim
 
             /* Constructor which takes in a string */
             Hex(const std::string&);
+
+            Hex(const Binary&);
 
             /* Copy Constructor */
             Hex(const Hex&);
@@ -68,11 +69,6 @@ namespace kim
             /* Returns the concatenation of two Hexadecimal objects */
             Hex                 operator+(const Hex&);
 
-            /* Returns the XOR result of two equal-length buffers */
-            Hex                 operator^(const Hex&);
-
-            /* Returns the result of XORing with a single-byte */
-            Hex                 operator^(const std::byte&);
 
         private:
             /*** Private Member Variables ***/
@@ -81,7 +77,9 @@ namespace kim
             std::string m_hex;
 
 
-        /*** Printer ***/
+        /*** Friends ***/
+
+        /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Hex&);
         };
     }

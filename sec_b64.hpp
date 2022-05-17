@@ -1,5 +1,4 @@
 /* "Security Types: Base64" Header File */
-
 #ifndef SEC_B64
 #define SEC_B64
 
@@ -31,6 +30,8 @@ namespace kim
 
             /* Constructor which takes in a valid Base64 string with or without padding */
             Base64(const std::string&);
+
+            Base64(const Binary&);
 
             /* Copy Constructor */
             Base64(const Base64&);
@@ -83,7 +84,9 @@ namespace kim
             uint8_t padding;
 
 
-        /*** Printer ***/
+        /*** Friends ***/
+
+        /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Base64&);
         };
     }

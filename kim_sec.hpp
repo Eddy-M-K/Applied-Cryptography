@@ -1,5 +1,4 @@
 /* Eddy Kim Security Header File */
-
 #ifndef KIM_SEC
 #define KIM_SEC
 

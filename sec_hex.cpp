@@ -1,10 +1,10 @@
 /* "Security Types: Hexadecimal" Source File */
-
 #include "sec_hex.hpp"
+
 #include "sec_bin.hpp"
 #include "sec_b64.hpp"
 
-#include <exception>
+#include <stdexcept>
 
 #include <cctype>
 #include <cstdint>
@@ -40,6 +40,11 @@ namespace kim
                     m_hex.push_back(toupper(e));
                 }
             }
+        }
+
+        Hex::Hex(const Binary& p_Bin)
+        {
+            *this = p_Bin.to_Hex();
         }
 
         Hex::Hex(const Hex& p_Hex)
@@ -166,20 +171,6 @@ namespace kim
             Hex this_copy{*this};
 
             return this_copy.append(rhs.m_hex);
-        }
-
-        Hex Hex::operator^(const Hex& rhs)
-        {
-            if (this->length() != rhs.length()) {
-                throw std::logic_error("For XOR operation the two Hexadecimal strings must be equal in length");
-            }
-
-            return (this->to_Bin() ^ rhs.to_Bin()).to_Hex();
-        }
-
-        Hex Hex::operator^(const std::byte& rhs)
-        {
-            return (this->to_Bin() ^ rhs).to_Hex();
         }
 
         std::ostream& operator<<(std::ostream& os, const Hex& p_Hex)

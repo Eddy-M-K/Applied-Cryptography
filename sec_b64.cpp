@@ -1,10 +1,10 @@
 /* "Security Types: Base64" Source File */
-
 #include "sec_b64.hpp"
+
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
 
-#include <exception>
+#include <stdexcept>
 
 #include <cctype>
 #include <cstdint>
@@ -45,6 +45,11 @@ namespace kim
             }
 
             m_b64 = p_str_copy;
+        }
+
+        Base64::Base64(const Binary& p_Bin)
+        {
+            *this = p_Bin.to_B64();
         }
 
         Base64::Base64(const Base64& p_B64)
