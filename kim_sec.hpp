@@ -3,5 +3,6 @@
 #define KIM_SEC
 
 #include "sec_types.hpp"
+#include "sec_xor.hpp"
 
 #endif /* KIM_SEC */
