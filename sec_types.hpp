@@ -1,4 +1,4 @@
-/* Security Types Header File */
+/* "Security Types" Header File */
 #ifndef SEC_TYPES
 #define SEC_TYPES
 
