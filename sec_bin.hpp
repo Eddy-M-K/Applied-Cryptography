@@ -65,6 +65,11 @@ namespace kim
             /* Returns the Base64 object equivalent of the Binary string */
             Base64              to_B64() const;
 
+            /* Returns the ASCII string equivalent of the Binary object
+             * - If the string contains invalid ASCII, the method will return an empty string
+             */
+            std::string         to_ASCII() const;
+
 
             /*** Public Member Operators ***/
 
@@ -88,7 +93,7 @@ namespace kim
             std::vector<std::byte> m_bin;
 
 
-            /*** Private Member Functions  ***/
+            /*** Private Member Functions ***/
 
             /* Used for compatibility with template functions */
             Binary              to_Bin() const;
@@ -106,9 +111,6 @@ namespace kim
 
         /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
-
-        /* Printer to print binary in ASCII (works properly only if binary value is >= 0 and < 128) */
-        friend void print_to_chr(const Binary&);
 
         template <class Container>
         friend Container XOR(const Container& lhs, const Container& rhs);

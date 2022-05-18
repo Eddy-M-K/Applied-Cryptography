@@ -174,6 +174,23 @@ namespace kim
             return ret;
         }
 
+        std::string Binary::to_ASCII() const
+        {
+            std::string ret{};
+
+            for (auto& e : m_bin) {
+                uint8_t tmp{std::to_integer<uint8_t>(e)};
+
+                if (tmp > INT8_MAX) {
+                    return "";
+                } else {
+                    ret += (static_cast<char>(tmp));
+                }
+            }
+
+            return ret;
+        }
+
         std::byte Binary::operator[](const std::size_t p_index) const
         {
             return m_bin[p_index];
@@ -247,13 +264,6 @@ namespace kim
             }
 
             return os;
-        }
-
-        void print_to_chr(const Binary& p_Bin)
-        {
-            for (auto& e : p_Bin.m_bin) {
-                printf("%c", std::to_integer<uint8_t>(e));
-            }
         }
     }
 }
