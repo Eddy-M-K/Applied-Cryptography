@@ -181,7 +181,7 @@ namespace kim
             for (auto& e : m_bin) {
                 uint8_t tmp{std::to_integer<uint8_t>(e)};
 
-                if (tmp > INT8_MAX) {
+                if (tmp >= 127u && tmp <= 33u) {
                     return "";
                 } else {
                     ret += (static_cast<char>(tmp));
