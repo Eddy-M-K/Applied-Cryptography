@@ -112,8 +112,13 @@ namespace kim
         /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
 
+        /* XOR of two containers */
         template <class Container>
         friend Container XOR(const Container& lhs, const Container& rhs);
+
+        /* XOR of container and byte */
+        template<class Container>
+        friend Container XOR(const Container& p_Con, const std::byte& p_byte);
         };
     }
 }
