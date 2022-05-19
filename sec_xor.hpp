@@ -3,7 +3,7 @@
 #define SEC_XOR
 
 #include <stdexcept>
-#include <set>
+#include <map>
 
 namespace kim
 {
@@ -26,16 +26,22 @@ namespace kim
         }
 
         template<class Container>
-        std::set<Container> XOR_byte_dec(const Container& p_Con)
+        std::map<std::size_t, Container> XOR_byte_dec(const Container& p_Con)
         {
-            std::set<Container,
-                    [](const std::string& lhs, const std::string& rhs) {
-
-                    })> ret{};
+            std::map<std::size_t, Container> ret{};
 
             Binary this_bin{p_Con.to_Bin()};
+            const uint8_t chr_freq[] = { };
 
-            for ()
+            for (uint8_t i{}; i < UINT8_MAX; i++) {
+                std::string tmp{(this_bin ^ std::byte{i}).to_ASCII()};
+
+                if (tmp.empty()) {
+                    continue;
+                }
+
+
+            }
 
             return ret;
         }
