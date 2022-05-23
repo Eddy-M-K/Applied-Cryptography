@@ -174,14 +174,14 @@ namespace kim
             return ret;
         }
 
-        std::string Binary::to_ASCII() const
+        std::string Binary::to_ASCII()
         {
             std::string ret{};
 
-            for (auto& e : m_bin) {
+            for (const std::byte& e : m_bin) {
                 uint8_t tmp{std::to_integer<uint8_t>(e)};
 
-                if (tmp >= 127u && tmp <= 33u) {
+                if (tmp > 127U) {
                     return "";
                 } else {
                     ret += (static_cast<char>(tmp));
