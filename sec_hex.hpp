@@ -31,6 +31,7 @@ namespace kim
             /* Constructor which takes in a string */
             Hex(const std::string&);
 
+            /* Constructor which takes in a Binary object */
             Hex(const Binary&);
 
             /* Copy Constructor */
