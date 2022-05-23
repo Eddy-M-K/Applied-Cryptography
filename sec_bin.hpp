@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 
 #include <cstdint>
 #include <cstddef>
@@ -68,7 +69,7 @@ namespace kim
             /* Returns the ASCII string equivalent of the Binary object
              * - If the string contains invalid ASCII, the method will return an empty string
              */
-            std::string         to_ASCII() const;
+            std::string         to_ASCII();
 
 
             /*** Public Member Operators ***/
@@ -101,7 +102,7 @@ namespace kim
 
             /*** Private Member Operators ***/
 
-            /* Returns the XOR result of two equal-length buffers */
+            /* Returns the XOR result of two equal-length Binary objects */
             Binary              operator^(const Binary&);
 
             /* Returns the result of XORing with a single-byte */
@@ -119,6 +120,9 @@ namespace kim
         /* XOR of container and byte */
         template<class Container>
         friend Container XOR(const Container& p_Con, const std::byte& p_byte);
+
+        template<class Container>
+        friend auto XOR_byte_dec(const Container& p_Con);
         };
     }
 }
