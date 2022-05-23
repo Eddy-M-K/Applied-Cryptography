@@ -31,6 +31,7 @@ namespace kim
             /* Constructor which takes in a valid Base64 string with or without padding */
             Base64(const std::string&);
 
+            /* Constructor which takes in a Binary object */
             Base64(const Binary&);
 
             /* Copy Constructor */
@@ -81,7 +82,7 @@ namespace kim
             std::string m_b64;
 
             /* Padding count */
-            uint8_t padding;
+            uint8_t m_pad;
 
 
         /*** Friends ***/
