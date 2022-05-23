@@ -2,8 +2,13 @@
 #ifndef SEC_XOR
 #define SEC_XOR
 
+#include <fstream>
 #include <stdexcept>
-#include <map>
+#include <set>
+#include <utility>
+#include <type_traits>
+
+#include "sec_bin.hpp"
 
 namespace kim
 {
@@ -26,22 +31,65 @@ namespace kim
         }
 
         template<class Container>
-        std::map<std::size_t, Container> XOR_byte_dec(const Container& p_Con)
+        auto XOR_byte_dec(const Container& p_Con)
         {
-            std::map<std::size_t, Container> ret{};
+            auto cmp{ [](std::pair<std::size_t, std::string> lhs, std::pair<std::size_t, std::string> rhs)
+            {
+                if (lhs.first > rhs.first) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }};
+            std::set<std::pair<std::size_t, std::string>, decltype(cmp)> ret(cmp);
 
-            Binary this_bin{p_Con.to_Bin()};
-            const uint8_t chr_freq[] = { };
+            Binary this_Bin{p_Con.to_Bin()};
+
+            const uint16_t chr_freq[] = { 609, 105, 284, 292, 1136, 179,
+                                          138, 341, 544, 24, 41, 292,
+                                          276, 544, 600, 195, 24, 495,
+                                          568, 803, 243, 97, 138, 24,
+                                          130, 3 };
 
             for (uint8_t i{}; i < UINT8_MAX; i++) {
-                std::string tmp{(this_bin ^ std::byte{i}).to_ASCII()};
+                std::string ASCII_string{(this_Bin ^ std::byte{i}).to_ASCII()};
 
-                if (tmp.empty()) {
+                if (ASCII_string.empty()) {
                     continue;
                 }
 
+                std::size_t score{};
+                for (auto& e : ASCII_string) {
+                    if (isalpha(e)) {
+                        score += chr_freq[toupper(e) - 'A'];
+                    } else {
+                        score += 16;
+                    }
+                }
 
+                ret.insert(std::make_pair(score, ASCII_string));
             }
+
+            return ret;
+        }
+
+        auto hex_file_XOR_byte_dec(const std::ifstream& p_File)
+        {
+            auto cmp{ [](std::pair<std::size_t, std::string> lhs, std::pair<std::size_t, std::string> rhs)
+            {
+                if (lhs.first > rhs.first) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }};
+            std::set<std::pair<std::size_t, std::string>, decltype(cmp)> ret(cmp);
+
+            std::string line{};
+
+            // while (getline(p_File, line)) {
+            //     ret.insert(*(XOR_byte_dec(kim::sec::Hex{line}).begin()));
+            // }
 
             return ret;
         }
