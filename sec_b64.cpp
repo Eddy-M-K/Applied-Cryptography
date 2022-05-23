@@ -23,7 +23,7 @@ namespace kim
             /* Appends padding, if necessary */
             while (p_str_copy.length() % 4 != 0) {
                 p_str_copy.push_back('=');
-                padding++;
+                m_pad++;
             }
             const std::size_t p_str_copy_len{p_str_copy.length()};
 
@@ -35,13 +35,13 @@ namespace kim
                     throw std::invalid_argument(p_str_copy + std::string(" is not a valid Base64 string"));
                 } else if (curr == '=' && i != p_str_copy_len - 1 && i != p_str_copy_len - 2) {
                     throw std::invalid_argument(p_str_copy + std::string(" is not a valid Base64 string "
-                                                "or it has improper usage of the padding character (=)"));
+                                                "or it has improper usage of the m_pad character (=)"));
                 }
             }
 
             /* Edge case check */
             if (p_str_copy[p_str_copy_len - 2] == '=' && p_str_copy[p_str_copy_len - 1] != '=') {
-                throw std::invalid_argument(p_str + std::string(" has improper padding"));
+                throw std::invalid_argument(p_str + std::string(" has improper m_pad"));
             }
 
             m_b64 = p_str_copy;
@@ -55,7 +55,7 @@ namespace kim
         Base64::Base64(const Base64& p_B64)
         {
             this->m_b64 = p_B64.m_b64;
-            this->padding = p_B64.padding;
+            this->m_pad = p_B64.m_pad;
         }
 
         Base64::~Base64() { }
@@ -87,30 +87,30 @@ namespace kim
                 if (!isalnum(curr) && curr != '+' && curr != '/' && curr != '=') {
                     throw std::invalid_argument(p_str + std::string(" is not a valid Base64 string"));
                 } else if (curr == '=' && i != p_str_len - 1 && i != p_str_len - 2) {
-                    throw std::invalid_argument(p_str + std::string(" has improper usage of the padding character (=)"));
+                    throw std::invalid_argument(p_str + std::string(" has improper usage of the m_pad character (=)"));
                 }
             }
 
             /* Edge case check */
             if (p_str_copy[p_str_len - 2] == '=' && p_str_copy[p_str_len - 1] != '=') {
-                throw std::invalid_argument(p_str + std::string(" has improper padding"));
+                throw std::invalid_argument(p_str + std::string(" has improper m_pad"));
             }
 
             /* Replace any original padding in the original Base64 string */
-            if (padding == 2 && !p_str_copy.empty()) {
+            if (m_pad == 2 && !p_str_copy.empty()) {
                 m_b64[m_b64.length() - 2] == p_str_copy[0];
                 p_str_copy.erase(0, 1);
-                padding--;
+                m_pad--;
 
                 if (!p_str_copy.empty()) {
                     m_b64[m_b64.length() - 1] == p_str_copy[1];
                     p_str_copy.erase(0, 1);
-                    padding--;
+                    m_pad--;
                 }
-            } else if (padding == 1 == '=' && !p_str_copy.empty()) {
+            } else if (m_pad == 1 == '=' && !p_str_copy.empty()) {
                 m_b64[p_str_len - 1] == p_str_copy[0];
                 p_str_copy.erase(0, 1);
-                padding--;
+                m_pad--;
             }
 
             /* Append the remainder of the string to append */
@@ -134,7 +134,7 @@ namespace kim
             /* Add any padding, if necessary */
             while (m_b64.length() % 4 != 0) {
                 m_b64.push_back('=');
-                padding++;
+                m_pad++;
             }
 
             return *this;
