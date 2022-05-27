@@ -15,11 +15,28 @@ namespace kim
 
         Binary::Binary(const std::string& p_str)
         {
-            std::string p_str_copy{p_str};
-
-            if (p_str_copy.empty()) {
+            if (p_str.empty()) {
                 return;
             }
+
+            for (const char& e : p_str) {
+                /* Check if the string argument is an ASCII string */
+                if (e != '0' && e != '1' && e != ' ') {
+                    m_bin.reserve(p_str.length());
+
+                    for (const char &e : p_str) {
+                        if (!isascii(e)) {
+                            throw std::invalid_argument("String contains a non-ASCII character");
+                        } else {
+                            m_bin.push_back(static_cast<std::byte>(e));
+                        }
+                    }
+
+                    return;
+                }
+            }
+
+            std::string p_str_copy{p_str};
 
             /* Remove any spaces */
             p_str_copy.erase(std::remove(p_str_copy.begin(), p_str_copy.end(), ' '), p_str_copy.end());
@@ -43,6 +60,8 @@ namespace kim
                 m_bin.push_back(static_cast<std::byte>(std::stoi(p_str_copy.substr(i, 8), nullptr, 2)));
             }
         }
+
+        Binary::Binary(const std::byte& p_byte) : m_bin(1, p_byte) { }
 
         Binary::Binary(const Binary& p_Bin)
         {
@@ -178,13 +197,25 @@ namespace kim
         {
             std::string ret{};
 
-            for (const std::byte& e : m_bin) {
-                uint8_t tmp{std::to_integer<uint8_t>(e)};
+            const char *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
+                                             "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
+                                              "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                              "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                             "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
+                                              "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                              "(RS)",  "(US)" };
 
-                if (tmp > 127U) {
+            for (const std::byte& e : m_bin) {
+                uint8_t byte_int{std::to_integer<uint8_t>(e)};
+
+                if (byte_int > 127U) {
                     return "";
+                } else if (byte_int >= 0U && byte_int <= 31U) {
+                    ret += nonprint_ASCII[byte_int];
+                } else if (byte_int == 127U) {
+                    ret += "(DEL)";
                 } else {
-                    ret += (static_cast<char>(tmp));
+                    ret += (static_cast<char>(byte_int));
                 }
             }
 
