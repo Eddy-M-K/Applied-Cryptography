@@ -36,6 +36,9 @@ namespace kim
             /* Constructor which takes in a valid Binary string (spaces are optional) */
             Binary(const std::string&);
 
+            /* Constructor which takes in a single byte */
+            Binary(const std::byte&);
+
             /* Copy Constructor */
             Binary(const Binary&);
 
@@ -122,7 +125,7 @@ namespace kim
         friend Container XOR(const Container& p_Con, const std::byte& p_byte);
 
         template<class Container>
-        friend auto XOR_byte_dec(const Container& p_Con);
+        friend auto XOR_byte_dec(const std::string& p_str);
         };
     }
 }
