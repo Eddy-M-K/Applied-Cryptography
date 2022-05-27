@@ -141,7 +141,7 @@ namespace kim
             }
 
             /* If there are any remaining bytes, compute those and add padding */
-            const unsigned long remaining{this_Bin.length() % 3};
+            const std::size_t remaining{this_Bin.length() % 3};
             std::string tmp_str{};
 
             if (remaining == 1) {
