@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <tuple>
 
+#include <cstdio>
+
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
 
@@ -141,17 +143,17 @@ namespace kim
 
             Binary pt_Bin{p_pt}, key_Bin{p_key};
 
-            Binary tmp{};
-            tmp.reserve(pt_Bin.length());
+            Binary ret_Bin{};
+            ret_Bin.reserve(pt_Bin.length());
             for (std::size_t pt_index{}, key_index{}; pt_index < pt_Bin.length(); pt_index++, key_index++) {
                 if (key_index == key_Bin.length()) {
                     key_index = 0;
                 }
 
-                tmp.push_back(pt_Bin[pt_index] ^ key_Bin[key_index]);
+                ret_Bin.push_back(pt_Bin[pt_index] ^ key_Bin[key_index]);
             }
 
-            return Container(tmp);
+            return Container(ret_Bin);
         }
 
         /* Encrypting a text file with repeating key XOR (key is a valid ASCII string) */
@@ -170,6 +172,8 @@ namespace kim
 
             std::fstream    ret(p_out_name, std::ios::out);
             std::ifstream   input_File(p_in_name);
+            Binary          ret_Bin{};
+            Binary          key_Bin{p_key};
 
             if (input_File.is_open()) {
                 char tmp_chr{};
@@ -181,10 +185,20 @@ namespace kim
                     if (!isascii(tmp_chr)) {
                         throw std::invalid_argument("Input file contains invalid ASCII");
                     }
+
+                    if (tmp_chr == EOF) {
+                        break;
+                    }
+
+                    ret_Bin.push_back(static_cast<std::byte>(tmp_chr) ^ key_Bin[key_index]);
                 }
             } else {
                 throw std::invalid_argument(std::string("Unable to open ") + p_in_name);
             }
+
+            ret_Bin.pop_back();
+
+            ret << Container(ret_Bin);
 
             return ret;
         }
