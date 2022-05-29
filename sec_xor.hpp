@@ -44,8 +44,8 @@ namespace kim
             /* Set with each entry comprising of { Score | Ciphertext | Byte | Plaintext } */
             std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret(cmp);
 
-            Container p_Con{p_str};
-            Binary this_Bin{p_Con.to_Bin()};
+            Container   p_Con{p_str};
+            Binary      this_Bin{p_Con.to_Bin()};
 
             const uint16_t    chr_freq[] = { 609, 105, 284, 292, 1136, 179,
                                              138, 341, 544,  24,   41, 292,
@@ -62,10 +62,10 @@ namespace kim
 
             uint8_t i{};
             do {
-                Binary XOR_result{this_Bin ^ std::byte{i}};
-                std::string ASCII_string{};
+                Binary          XOR_result{this_Bin ^ std::byte{i}};
+                std::string     ASCII_string{};
+                std::size_t     score{};
 
-                std::size_t score{};
                 for (std::size_t k{}; k < XOR_result.length(); k++) {
                     uint8_t byte_int{std::to_integer<uint8_t>(XOR_result[k])};
 
@@ -113,6 +113,7 @@ namespace kim
             /* Set comprising of the best candidates in the format { Score | Ciphertext | Byte | Plaintext } */
             std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret(cmp);
 
+
             std::string line{};
             while (getline(p_File, line)) {
                 auto tmp{XOR_byte_dec<Container>(line)};
@@ -124,10 +125,68 @@ namespace kim
             return ret;
         }
 
+        /* Encrypting a string using repeating key XOR (key is a valid ASCII string) */
         template <class Container>
-        void XOR_rep_key_enc(std::ifstream& p_File)
+        Container XOR_rep_key_enc(const std::string& p_pt, const std::string& p_key)
         {
+            if (p_key.empty()) {
+                throw std::invalid_argument("Key cannot be empty");
+            }
 
+            for (const char& e : p_key) {
+                if (!isascii(e)) {
+                    throw std::invalid_argument("Key must contain valid ASCII");
+                }
+            }
+
+            Binary pt_Bin{p_pt}, key_Bin{p_key};
+
+            Binary tmp{};
+            tmp.reserve(pt_Bin.length());
+            for (std::size_t pt_index{}, key_index{}; pt_index < pt_Bin.length(); pt_index++, key_index++) {
+                if (key_index == key_Bin.length()) {
+                    key_index = 0;
+                }
+
+                tmp.push_back(pt_Bin[pt_index] ^ key_Bin[key_index]);
+            }
+
+            return Container(tmp);
+        }
+
+        /* Encrypting a text file with repeating key XOR (key is a valid ASCII string) */
+        template <class Container>
+        std::fstream XOR_rep_key_enc(const std::string& p_in_name, const std::string& p_out_name, const std::string& p_key)
+        {
+            if (p_key.empty()) {
+                throw std::invalid_argument("Key cannot be empty");
+            }
+
+            for (const char& e : p_key) {
+                if (!isascii(e)) {
+                    throw std::invalid_argument("Key contains invalid ASCII");
+                }
+            }
+
+            std::fstream    ret(p_out_name, std::ios::out);
+            std::ifstream   input_File(p_in_name);
+
+            if (input_File.is_open()) {
+                char tmp_chr{};
+                for (std::size_t key_index{}; input_File.get(tmp_chr); key_index++) {
+                    if (key_index == p_key.length()) {
+                        key_index = 0;
+                    }
+
+                    if (!isascii(tmp_chr)) {
+                        throw std::invalid_argument("Input file contains invalid ASCII");
+                    }
+                }
+            } else {
+                throw std::invalid_argument(std::string("Unable to open ") + p_in_name);
+            }
+
+            return ret;
         }
     }
 }
