@@ -60,6 +60,9 @@ namespace kim
             /* Pushes back a byte */
             void                push_back(const std::byte&);
 
+            /* Removes the specified number of bytes from the back */
+            void                pop_back(const std::vector<std::byte>::size_type = 1);
+
             /* Reserves space for the Binary string specified by a size_t argument */
             void                reserve(const std::vector<std::byte>::size_type);
 

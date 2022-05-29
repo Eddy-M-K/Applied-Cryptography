@@ -1,11 +1,11 @@
 /* "Security Types: Binary" Source File */
 #include "sec_bin.hpp"
 
-#include "sec_hex.hpp"
-#include "sec_b64.hpp"
-
 #include <bitset>
 #include <algorithm>
+
+#include "sec_hex.hpp"
+#include "sec_b64.hpp"
 
 namespace kim
 {
@@ -83,6 +83,15 @@ namespace kim
         void Binary::push_back(const std::byte& p_byte)
         {
             m_bin.push_back(p_byte);
+        }
+
+        void Binary::pop_back(const std::vector<std::byte>::size_type p_size)
+        {
+            m_bin.reserve(m_bin.size() - p_size);
+
+            for (std::vector<std::byte>::size_type count{p_size}; count > 0; count--) {
+                m_bin.pop_back();
+            }
         }
 
         void Binary::reserve(const std::vector<std::byte>::size_type p_size)
