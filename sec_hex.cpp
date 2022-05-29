@@ -95,7 +95,7 @@ namespace kim
             return *this;
         }
 
-        Hex& Hex::truncate(const std::string::size_type p_size = 2)
+        Hex& Hex::truncate(const std::string::size_type p_size)
         {
             if (p_size % 2 != 0) {
                 throw std::invalid_argument("Truncation size is not a multiple of 2");
