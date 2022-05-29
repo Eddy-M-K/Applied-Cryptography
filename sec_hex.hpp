@@ -50,10 +50,13 @@ namespace kim
             bool                empty() const;
 
             /* Reserves space for the Hexadecimal string specified by a size_t argument */
-            void                reserve(const std::size_t);
+            void                reserve(const std::string::size_type);
 
             /* Appends a string with valid Hexadecimal */
             Hex&                append(const std::string&);
+
+            /* Removes the specified number of Hexadecimal digits from the back (must be even) */
+            Hex&                truncate(const std::string::size_type = 2);
 
             /* Returns the Binary object equivalent of the Hexadecimal string */
             Binary              to_Bin() const;

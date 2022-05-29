@@ -1,14 +1,14 @@
 /* "Security Types: Hexadecimal" Source File */
 #include "sec_hex.hpp"
 
-#include "sec_bin.hpp"
-#include "sec_b64.hpp"
-
 #include <stdexcept>
 
 #include <cctype>
 #include <cstdint>
 #include <cstddef>
+
+#include "sec_bin.hpp"
+#include "sec_b64.hpp"
 
 namespace kim
 {
@@ -64,7 +64,7 @@ namespace kim
             return m_hex.empty();
         }
 
-        void Hex::reserve(const std::size_t p_size)
+        void Hex::reserve(const std::string::size_type p_size)
         {
             m_hex.reserve(p_size);
         }
@@ -91,6 +91,17 @@ namespace kim
                     m_hex.push_back(toupper(e));
                 }
             }
+
+            return *this;
+        }
+
+        Hex& Hex::truncate(const std::string::size_type p_size = 2)
+        {
+            if (p_size % 2 != 0) {
+                throw std::invalid_argument("Truncation size is not a multiple of 2");
+            }
+
+            m_hex = m_hex.substr(0, m_hex.length() - p_size);
 
             return *this;
         }
