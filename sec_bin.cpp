@@ -222,12 +222,12 @@ namespace kim
             return ret;
         }
 
-        std::byte Binary::operator[](const std::size_t p_index) const
+        std::byte Binary::operator[](const std::vector<std::byte>::size_type p_index) const
         {
             return m_bin[p_index];
         }
 
-        std::byte& Binary::operator[](const std::size_t p_index)
+        std::byte& Binary::operator[](const std::vector<std::byte>::size_type p_index)
         {
             return m_bin[p_index];
         }

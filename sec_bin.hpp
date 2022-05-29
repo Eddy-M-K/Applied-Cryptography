@@ -33,7 +33,10 @@ namespace kim
             /* Empty Constructor */
             Binary();
 
-            /* Constructor which takes in a valid Binary string (spaces are optional) */
+            /* Constructor which takes in a
+             * - valid Binary string consisting of 1s and 0s (spaces are optional)
+             * - OR a valid ASCII string
+             */
             Binary(const std::string&);
 
             /* Constructor which takes in a single byte */
@@ -78,10 +81,10 @@ namespace kim
             /*** Public Member Operators ***/
 
             /* Constant subscript operator */
-            std::byte           operator[](const std::size_t p_index) const;
+            std::byte           operator[](const std::vector<std::byte>::size_type p_index) const;
 
             /* Subscript operator */
-            std::byte&          operator[](const std::size_t p_index);
+            std::byte&          operator[](const std::vector<std::byte>::size_type p_index);
 
             /* Appends another Binary object */
             Binary&             operator+=(const Binary&);
