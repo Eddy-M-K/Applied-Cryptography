@@ -5,11 +5,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <set>
-#include <utility>
 #include <type_traits>
 #include <tuple>
-
-#include <cstdio>
 
 #include "sec_hex.hpp"
 #include "sec_bin.hpp"
@@ -104,7 +101,7 @@ namespace kim
         }
 
         template <class Container>
-        auto XOR_byte_dec(std::ifstream& p_File)
+        auto XOR_byte_dec(std::ifstream p_File)
         {
             /* Custom comparator */
             auto cmp{ [](std::tuple<const std::size_t, const Container, const Binary, const std::string> lhs,
@@ -114,7 +111,6 @@ namespace kim
             }};
             /* Set comprising of the best candidates in the format { Score | Ciphertext | Byte | Plaintext } */
             std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret(cmp);
-
 
             std::string line{};
             while (getline(p_File, line)) {
@@ -137,7 +133,7 @@ namespace kim
 
             for (const char& e : p_key) {
                 if (!isascii(e)) {
-                    throw std::invalid_argument("Key must contain valid ASCII");
+                    throw std::invalid_argument("Key contains invalid ASCII");
                 }
             }
 
@@ -158,7 +154,7 @@ namespace kim
 
         /* Encrypting a text file with repeating key XOR (key is a valid ASCII string) */
         template <class Container>
-        std::fstream XOR_rep_key_enc(const std::string& p_in_name, const std::string& p_out_name, const std::string& p_key)
+        Container XOR_rep_key_enc(std::ifstream p_in_File, const std::string& p_key)
         {
             if (p_key.empty()) {
                 throw std::invalid_argument("Key cannot be empty");
@@ -170,14 +166,12 @@ namespace kim
                 }
             }
 
-            std::fstream    ret(p_out_name, std::ios::out);
-            std::ifstream   input_File(p_in_name);
             Binary          ret_Bin{};
             Binary          key_Bin{p_key};
 
-            if (input_File.is_open()) {
+            if (p_in_File.is_open()) {
                 char tmp_chr{};
-                for (std::size_t key_index{}; input_File.get(tmp_chr); key_index++) {
+                for (std::size_t key_index{}; p_in_File.get(tmp_chr); key_index++) {
                     if (key_index == p_key.length()) {
                         key_index = 0;
                     }
@@ -186,21 +180,15 @@ namespace kim
                         throw std::invalid_argument("Input file contains invalid ASCII");
                     }
 
-                    if (tmp_chr == EOF) {
-                        break;
-                    }
-
                     ret_Bin.push_back(static_cast<std::byte>(tmp_chr) ^ key_Bin[key_index]);
                 }
             } else {
-                throw std::invalid_argument(std::string("Unable to open ") + p_in_name);
+                throw std::invalid_argument("Unable to open input file");
             }
 
             ret_Bin.pop_back();
 
-            ret << Container(ret_Bin);
-
-            return ret;
+            return Container(ret_Bin);
         }
     }
 }
