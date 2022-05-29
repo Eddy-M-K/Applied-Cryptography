@@ -50,7 +50,7 @@ namespace kim
             bool                empty() const;
 
             /* Reserves space for the Base64 string specified by a size_t argument */
-            void                reserve(const std::size_t);
+            void                reserve(const std::string::size_type);
 
             /* Appends a string with valid Base64
              * - Will replace any padding in the original Base64 string
@@ -58,6 +58,9 @@ namespace kim
              *   resultant string is invalid Base64
              */
             Base64&             append(const std::string&);
+
+            /* Removes the specified number of Base64 digits from the back (must be a multiple of 4) */
+            Base64&             truncate(const std::string::size_type = 4);
 
             /* Returns the Binary object equivalent of the Base64 string */
             Binary              to_Bin() const;
