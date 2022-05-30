@@ -10,8 +10,8 @@
 #include <bitset>
 #include <limits>
 
-#include "sec_hex.hpp"
-#include "sec_bin.hpp"
+#include "types_hex.hpp"
+#include "types_bin.hpp"
 
 namespace kim
 {
@@ -256,24 +256,36 @@ namespace kim
                 throw std::invalid_argument("Unable to open input file");
             }
 
-            Binary          full_ct_Bin{Container{full_ct}};
+            Container       full_ct_Con{full_ct};
+            Binary          full_ct_Bin{full_ct_Con};
             std::size_t     min_hamming_norm{std::numeric_limits<std::size_t>::max()};
-            uint8_t         keysize_guess{2};
+            uint8_t         keysize{2};
 
-            for (; keysize_guess <= 40; keysize_guess++) {
-                if (keysize_guess * 2 > full_ct_Bin.length()) {
+            for (uint8_t keysize_guess{2}; keysize_guess <= 40U; keysize_guess++) {
+                // printf("%d\n", keysize_guess);
+                if (keysize_guess * 4 > full_ct_Bin.length()) {
+                    std::cout << "BRUH" << std::endl;
                     break;
                 }
 
-                std::size_t curr_hamming{Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess), full_ct_Bin.subBin(keysize_guess, keysize_guess * 2))};
-                std::size_t curr_hamming_norm{curr_hamming / keysize_guess};
+                std::size_t curr_hamming_norm{(Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                       full_ct_Bin.subBin(keysize_guess, keysize_guess)) +
+                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                       full_ct_Bin.subBin(2 * keysize_guess, keysize_guess)) +
+                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                       full_ct_Bin.subBin(3 * keysize_guess, keysize_guess)) +
+                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                       full_ct_Bin.subBin(4 * keysize_guess, keysize_guess)))
+                                               / (4 * keysize_guess)};
 
                 if (curr_hamming_norm < min_hamming_norm) {
                     min_hamming_norm = curr_hamming_norm;
+                    keysize = keysize_guess;
+                    // printf("%ld, %d\n", curr_hamming_norm, keysize);
                 }
             }
 
-
+            // printf("%d\n", keysize);
 
             return std::fstream{};
         }
