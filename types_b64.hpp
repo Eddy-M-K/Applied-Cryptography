@@ -1,6 +1,6 @@
 /* "Security Types: Base64" Header File */
-#ifndef SEC_B64
-#define SEC_B64
+#ifndef TYPES_B64
+#define TYPES_B64
 
 #include <iostream>
 #include <string>
@@ -60,7 +60,7 @@ namespace kim
             Base64&             append(std::string);
 
             /* Removes the specified number of Base64 digits from the back (must be a multiple of 4) */
-            Base64&             truncate(const std::string::size_type = 4);
+            Base64&             discard(const std::string::size_type = 4);
 
             /* Returns the Binary object equivalent of the Base64 string */
             Binary              to_Bin() const;
@@ -96,4 +96,4 @@ namespace kim
     }
 }
 
-#endif /* SEC_B64 */
+#endif /* TYPES_B64 */

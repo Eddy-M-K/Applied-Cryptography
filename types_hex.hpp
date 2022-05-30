@@ -1,6 +1,6 @@
 /* "Security Types: Hexadecimal" Header File */
-#ifndef SEC_HEX
-#define SEC_HEX
+#ifndef TYPES_HEX
+#define TYPES_HEX
 
 #include <iostream>
 #include <string>
@@ -56,7 +56,7 @@ namespace kim
             Hex&                append(const std::string&);
 
             /* Removes the specified number of Hexadecimal digits from the back (must be even) */
-            Hex&                truncate(const std::string::size_type = 2);
+            Hex&                discard(const std::string::size_type = 2);
 
             /* Returns the Binary object equivalent of the Hexadecimal string */
             Binary              to_Bin() const;
@@ -89,4 +89,4 @@ namespace kim
     }
 }
 
-#endif /* SEC_HEX */
+#endif /* TYPES_HEX */

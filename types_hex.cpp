@@ -1,5 +1,5 @@
 /* "Security Types: Hexadecimal" Source File */
-#include "sec_hex.hpp"
+#include "types_hex.hpp"
 
 #include <stdexcept>
 
@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <cstddef>
 
-#include "sec_bin.hpp"
-#include "sec_b64.hpp"
+#include "types_bin.hpp"
+#include "types_b64.hpp"
 
 namespace kim
 {
@@ -95,7 +95,7 @@ namespace kim
             return *this;
         }
 
-        Hex& Hex::truncate(const std::string::size_type p_size)
+        Hex& Hex::discard(const std::string::size_type p_size)
         {
             if (p_size % 2 != 0) {
                 throw std::invalid_argument("Truncation size is not a multiple of 2");

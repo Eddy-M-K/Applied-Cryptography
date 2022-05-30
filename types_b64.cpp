@@ -1,5 +1,5 @@
 /* "Security Types: Base64" Source File */
-#include "sec_b64.hpp"
+#include "types_b64.hpp"
 
 #include <stdexcept>
 
@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <cstddef>
 
-#include "sec_hex.hpp"
-#include "sec_bin.hpp"
+#include "types_hex.hpp"
+#include "types_bin.hpp"
 
 namespace kim
 {
@@ -138,7 +138,7 @@ namespace kim
             return *this;
         }
 
-        Base64& Base64::truncate(const std::string::size_type p_size)
+        Base64& Base64::discard(const std::string::size_type p_size)
         {
             if (p_size % 4 != 0) {
                 throw std::invalid_argument("Truncation size is not a multiple of 4");

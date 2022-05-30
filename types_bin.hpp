@@ -1,6 +1,6 @@
 /* "Security Types: Binary" Header File */
-#ifndef SEC_BIN
-#define SEC_BIN
+#ifndef TYPES_BIN
+#define TYPES_BIN
 
 #include <iostream>
 #include <vector>
@@ -125,4 +125,4 @@ namespace kim
     }
 }
 
-#endif /* SEC_BIN */
+#endif /* TYPES_BIN */

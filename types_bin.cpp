@@ -1,11 +1,11 @@
 /* "Security Types: Binary" Source File */
-#include "sec_bin.hpp"
+#include "types_bin.hpp"
 
 #include <bitset>
 #include <algorithm>
 
-#include "sec_hex.hpp"
-#include "sec_b64.hpp"
+#include "types_hex.hpp"
+#include "types_b64.hpp"
 
 namespace kim
 {
