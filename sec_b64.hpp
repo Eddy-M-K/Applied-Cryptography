@@ -29,7 +29,7 @@ namespace kim
             Base64();
 
             /* Constructor which takes in a valid Base64 string with or without padding */
-            Base64(const std::string&);
+            Base64(std::string);
 
             /* Constructor which takes in a Binary object */
             Base64(const Binary&);
@@ -57,7 +57,7 @@ namespace kim
              * - Padding in the string argument is optional but will throw an exception if
              *   resultant string is invalid Base64
              */
-            Base64&             append(const std::string&);
+            Base64&             append(std::string);
 
             /* Removes the specified number of Base64 digits from the back (must be a multiple of 4) */
             Base64&             truncate(const std::string::size_type = 4);

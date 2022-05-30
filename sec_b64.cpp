@@ -16,35 +16,34 @@ namespace kim
     {
         Base64::Base64() { }
 
-        Base64::Base64(const std::string& p_str)
+        Base64::Base64(std::string p_str)
         {
-            std::string p_str_copy{p_str};
-
             /* Appends padding, if necessary */
-            while (p_str_copy.length() % 4 != 0) {
-                p_str_copy.push_back('=');
+            while (p_str.length() % 4 != 0) {
+                p_str.push_back('=');
                 m_pad++;
             }
-            const std::size_t p_str_copy_len{p_str_copy.length()};
+
+            const std::string::size_type p_str_len{p_str.length()};
 
             /* Checks if the string is valid Base64 */
-            for (std::size_t i{}; i < p_str_copy_len; i++) {
-                const char curr{p_str_copy[i]};
+            for (std::string::size_type index{}; index < p_str_len; index++) {
+                const char curr{p_str[index]};
 
                 if (!isalnum(curr) && curr != '+' && curr != '/' && curr != '=') {
-                    throw std::invalid_argument(p_str_copy + std::string(" is not a valid Base64 string"));
-                } else if (curr == '=' && i != p_str_copy_len - 1 && i != p_str_copy_len - 2) {
-                    throw std::invalid_argument(p_str_copy + std::string(" is not a valid Base64 string "
-                                                "or it has improper usage of the m_pad character (=)"));
+                    throw std::invalid_argument(p_str + std::string(" is not a valid Base64 string"));
+                } else if (curr == '=' && index != p_str_len - 1 && index != p_str_len - 2) {
+                    throw std::invalid_argument(p_str + std::string(" is not a valid Base64 string "
+                                                "or it has improper usage of the padding character (=)"));
                 }
             }
 
             /* Edge case check */
-            if (p_str_copy[p_str_copy_len - 2] == '=' && p_str_copy[p_str_copy_len - 1] != '=') {
-                throw std::invalid_argument(p_str + std::string(" has improper m_pad"));
+            if (p_str[p_str_len - 2] == '=' && p_str[p_str_len - 1] != '=') {
+                throw std::invalid_argument(p_str + std::string(" has improper padding"));
             }
 
-            m_b64 = p_str_copy;
+            m_b64 = p_str;
         }
 
         Base64::Base64(const Binary& p_Bin)
@@ -70,51 +69,50 @@ namespace kim
             return m_b64.empty();
         }
 
-        void Base64::reserve(const std::size_t p_size)
+        void Base64::reserve(const std::string::size_type p_size)
         {
             m_b64.reserve(p_size);
         }
 
-        Base64& Base64::append(const std::string& p_str)
+        Base64& Base64::append(std::string p_str)
         {
-            std::string p_str_copy{p_str};
-            const std::size_t p_str_len{p_str.length()};
+            const std::string::size_type p_str_len{p_str.length()};
 
             /* Checks if the string is valid Base64 */
-            for (std::size_t i{}; i < p_str_len; i++) {
-                const char curr{p_str_copy[i]};
+            for (std::string::size_type index{}; index < p_str.length(); index++) {
+                const char curr_chr{p_str[index]};
 
-                if (!isalnum(curr) && curr != '+' && curr != '/' && curr != '=') {
+                if (!isalnum(curr_chr) && curr_chr != '+' && curr_chr != '/' && curr_chr != '=') {
                     throw std::invalid_argument(p_str + std::string(" is not a valid Base64 string"));
-                } else if (curr == '=' && i != p_str_len - 1 && i != p_str_len - 2) {
-                    throw std::invalid_argument(p_str + std::string(" has improper usage of the m_pad character (=)"));
+                } else if (curr_chr == '=' && index != p_str_len - 1 && index != p_str_len - 2) {
+                    throw std::invalid_argument(p_str + std::string(" has improper usage of the padding character (=)"));
                 }
             }
 
             /* Edge case check */
-            if (p_str_copy[p_str_len - 2] == '=' && p_str_copy[p_str_len - 1] != '=') {
-                throw std::invalid_argument(p_str + std::string(" has improper m_pad"));
+            if (p_str[p_str_len - 2] == '=' && p_str[p_str_len - 1] != '=') {
+                throw std::invalid_argument(p_str + std::string(" has improper padding"));
             }
 
             /* Replace any original padding in the original Base64 string */
-            if (m_pad == 2 && !p_str_copy.empty()) {
-                m_b64[m_b64.length() - 2] == p_str_copy[0];
-                p_str_copy.erase(0, 1);
+            if (m_pad == 2 && !p_str.empty()) {
+                m_b64[m_b64.length() - 2] == p_str[0];
+                p_str.erase(0, 1);
                 m_pad--;
 
-                if (!p_str_copy.empty()) {
-                    m_b64[m_b64.length() - 1] == p_str_copy[1];
-                    p_str_copy.erase(0, 1);
+                if (!p_str.empty()) {
+                    m_b64[m_b64.length() - 1] == p_str[1];
+                    p_str.erase(0, 1);
                     m_pad--;
                 }
-            } else if (m_pad == 1 == '=' && !p_str_copy.empty()) {
-                m_b64[p_str_len - 1] == p_str_copy[0];
-                p_str_copy.erase(0, 1);
+            } else if (m_pad == 1 == '=' && !p_str.empty()) {
+                m_b64[p_str_len - 1] == p_str[0];
+                p_str.erase(0, 1);
                 m_pad--;
             }
 
             /* Append the remainder of the string to append */
-            if (!p_str_copy.empty()) {
+            if (!p_str.empty()) {
                 m_b64 += p_str;
             }
 
@@ -156,30 +154,30 @@ namespace kim
             Binary ret{};
             ret.reserve(m_b64.size() / 4 * 3);
 
-            for (std::size_t i{}; i < m_b64.length(); i += 4) {
+            for (std::string::size_type index{}; index < m_b64.length(); index += 4) {
                 uint8_t sextet[4] = { };
 
-                for (uint8_t j{}; j < 4; j++) {
-                    const char curr{m_b64[i + j]};
+                for (uint8_t sextet_index{}; sextet_index < 4; sextet_index++) {
+                    const char curr{m_b64[index + sextet_index]};
 
                     if (isalpha(curr)) {
                         if (isupper(curr)) {
-                            sextet[j] = curr - 'A';
+                            sextet[sextet_index] = curr - 'A';
                         } else {
-                            sextet[j] = curr - 'a' + 26;
+                            sextet[sextet_index] = curr - 'a' + 26;
                         }
                     } else if (isdigit(curr)) {
-                        sextet[j] = curr - '0' + 52;
+                        sextet[sextet_index] = curr - '0' + 52;
                     } else {
                         switch(curr) {
                             case '+':
-                                sextet[j] = 62;
+                                sextet[sextet_index] = 62;
                                 break;
                             case '/':
-                                sextet[j] = 63;
+                                sextet[sextet_index] = 63;
                                 break;
                             default:
-                                sextet[j] = 64;
+                                sextet[sextet_index] = 64;
                         }
                     }
                 }
@@ -202,22 +200,21 @@ namespace kim
 
         Hex Base64::to_Hex() const
         {
-            const Binary this_Bin{this->to_Bin()};
+            const Binary        this_Bin{this->to_Bin()};
+            std::string         append_str{};
+            const char          hex_table[] = { '0', '1', '2', '3',
+                                                '4', '5', '6', '7',
+                                                '8', '9', 'A', 'B',
+                                                'C', 'D', 'E', 'F' };
 
-            const char hex_table[] = { '0', '1', '2', '3',
-                                       '4', '5', '6', '7',
-                                       '8', '9', 'A', 'B',
-                                       'C', 'D', 'E', 'F' };
+            append_str.reserve(this_Bin.length() * 2);
 
-            std::string tmp_str{};
-            tmp_str.reserve(this_Bin.length() * 2);
-
-            for (std::size_t i{}; i < this_Bin.length(); i++) {
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>((this_Bin[i] & std::byte{0b11110000}) >> 4)]);
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>(this_Bin[i] & std::byte{0b00001111})]);
+            for (std::string::size_type index{}; index < this_Bin.length(); index++) {
+                append_str.push_back(hex_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b11110000}) >> 4)]);
+                append_str.push_back(hex_table[std::to_integer<uint8_t>(this_Bin[index] & std::byte{0b00001111})]);
             }
 
-            return Hex(tmp_str);
+            return Hex(append_str);
         }
 
         Base64& Base64::operator+=(const Base64& rhs)
