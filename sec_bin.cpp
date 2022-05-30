@@ -13,7 +13,7 @@ namespace kim
     {
         Binary::Binary() { }
 
-        Binary::Binary(const std::string& p_str)
+        Binary::Binary(std::string p_str)
         {
             if (p_str.empty()) {
                 return;
@@ -36,13 +36,11 @@ namespace kim
                 }
             }
 
-            std::string p_str_copy{p_str};
-
             /* Remove any spaces */
-            p_str_copy.erase(std::remove(p_str_copy.begin(), p_str_copy.end(), ' '), p_str_copy.end());
+            p_str.erase(std::remove(p_str.begin(), p_str.end(), ' '), p_str.end());
 
             /* String length must be a multiple of 8 */
-            if (p_str_copy.length() % 8 != 0) {
+            if (p_str.length() % 8 != 0) {
                 throw std::invalid_argument(std::string("The length of the string ")
                                             + p_str + std::string(" is not a multiple of 8"));
             }
@@ -50,18 +48,30 @@ namespace kim
             m_bin.reserve(p_str.length() / 8);
 
             /* Check if the string is a valid binary string */
-            for (std::size_t i{}; i < p_str_copy.length(); i += 8) {
-                for (uint8_t j{}; j < 8; j++) {
-                    if ((p_str_copy[i + j] != '0') && (p_str_copy[i + j] != '1')) {
+            for (std::string::size_type byte_index{}; byte_index < p_str.length(); byte_index += 8) {
+                for (uint8_t bit_index{}; bit_index < 8; bit_index++) {
+                    if ((p_str[byte_index + bit_index] != '0') && (p_str[byte_index + bit_index] != '1')) {
                         throw std::invalid_argument(p_str + std::string(" is not a valid Binary string"));
                     }
                 }
 
-                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str_copy.substr(i, 8), nullptr, 2)));
+                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str.substr(byte_index, 8), nullptr, 2)));
             }
         }
 
+        Binary::Binary(const std::vector<std::byte>& p_vec) : m_bin(p_vec) { }
+
         Binary::Binary(const std::byte& p_byte) : m_bin(1, p_byte) { }
+
+        Binary::Binary(const Hex& p_Hex)
+        {
+            *this = p_Hex.to_Bin();
+        }
+
+        Binary::Binary(const Base64& p_B64)
+        {
+            *this = p_B64.to_Bin();
+        }
 
         Binary::Binary(const Binary& p_Bin)
         {
@@ -99,16 +109,14 @@ namespace kim
             m_bin.reserve(p_size);
         }
 
-        Binary& Binary::append(const std::string& p_str)
+        Binary& Binary::append(std::string p_str)
         {
-            std::string p_str_copy{p_str};
-
-            if (p_str_copy.empty()) {
+            if (p_str.empty()) {
                 return *this;
             }
 
             /* Remove any spaces */
-            p_str_copy.erase(std::remove(p_str_copy.begin(), p_str_copy.end(), ' '), p_str_copy.end());
+            p_str.erase(std::remove(p_str.begin(), p_str.end(), ' '), p_str.end());
 
             m_bin.reserve(m_bin.size() + p_str.length() / 8);
 
@@ -119,35 +127,44 @@ namespace kim
             }
 
             /* Check if the string is a valid binary string */
-            for (std::size_t i{}; i < p_str_copy.length(); i += 8) {
-                for (uint8_t j{}; j < 8; j++) {
-                    if ((p_str_copy[i + j] != '0') && (p_str_copy[i + j] != '1')) {
+            for (std::string::size_type byte_index{}; byte_index < p_str.length(); byte_index += 8) {
+                for (uint8_t bit_index{}; bit_index < 8; bit_index++) {
+                    if ((p_str[byte_index + bit_index] != '0') && (p_str[byte_index + bit_index] != '1')) {
                         throw std::invalid_argument(p_str + std::string(" is not a valid Binary string"));
                     }
                 }
 
-                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str_copy.substr(i, 8), nullptr, 2)));
+                m_bin.push_back(static_cast<std::byte>(std::stoi(p_str.substr(byte_index, 8), nullptr, 2)));
             }
 
             return *this;
         }
 
-        Hex Binary::to_Hex() const
+        Binary Binary::subBin(const std::vector<std::byte>::size_type p_index, const std::vector<std::byte>::size_type p_len)
         {
-            const char hex_table[] = { '0', '1', '2', '3',
-                                       '4', '5', '6', '7',
-                                       '8', '9', 'A', 'B',
-                                       'C', 'D', 'E', 'F' };
-
-            std::string tmp_str{};
-            tmp_str.reserve(m_bin.size() * 2);
-
-            for (std::vector<std::byte>::const_iterator it = m_bin.begin(); it != m_bin.end(); it++) {
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>((*it & std::byte{0b11110000}) >> 4)]);
-                tmp_str.push_back(hex_table[std::to_integer<uint8_t>(*it & std::byte{0b00001111})]);
+            if (!p_len) {
+                throw std::invalid_argument("Length of sub Binary object is invalid");
             }
 
-            return Hex(tmp_str);
+            return Binary(std::vector<std::byte>(m_bin.begin() + p_index, m_bin.begin() + p_index + p_len));
+        }
+
+        Hex Binary::to_Hex() const
+        {
+            std::string     ret_str{};
+            const char      hex_table[] = { '0', '1', '2', '3',
+                                            '4', '5', '6', '7',
+                                            '8', '9', 'A', 'B',
+                                            'C', 'D', 'E', 'F' };
+
+            ret_str.reserve(m_bin.size() * 2);
+
+            for (std::vector<std::byte>::const_iterator it = m_bin.begin(); it != m_bin.end(); it++) {
+                ret_str.push_back(hex_table[std::to_integer<uint8_t>((*it & std::byte{0b11110000}) >> 4)]);
+                ret_str.push_back(hex_table[std::to_integer<uint8_t>(*it & std::byte{0b00001111})]);
+            }
+
+            return Hex(ret_str);
         }
 
         Base64 Binary::to_B64() const
@@ -182,8 +199,8 @@ namespace kim
             }
 
             /* If there are any remaining bytes, compute those and add padding */
-            const unsigned long remaining{m_bin.size() % 3};
-            std::string tmp_str{};
+            const unsigned long     remaining{m_bin.size() % 3};
+            std::string             tmp_str{};
 
             if (remaining == 1) {
                 tmp_str.push_back(base64_table[std::to_integer<uint8_t>(m_bin[index] >> 2)]);
@@ -204,15 +221,14 @@ namespace kim
 
         std::string Binary::to_ASCII()
         {
-            std::string ret{};
-
-            const char *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
-                                             "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
-                                              "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
-                                              "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
-                                             "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
-                                              "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
-                                              "(RS)",  "(US)" };
+            std::string     ret{};
+            const char      *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
+                                                  "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
+                                                  "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                                  "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                                  "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
+                                                  "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                                  "(RS)",  "(US)" };
 
             for (const std::byte& e : m_bin) {
                 uint8_t byte_int{std::to_integer<uint8_t>(e)};
@@ -262,37 +278,6 @@ namespace kim
             }
 
             return this_copy;
-        }
-
-        Binary Binary::to_Bin() const
-        {
-            return *this;
-        }
-
-        Binary Binary::operator^(const Binary& rhs)
-        {
-            Binary ret{};
-
-            if (this->length() != rhs.length()) {
-                throw std::logic_error("For XOR operation the two Binary strings must be equal in length");
-            }
-
-            for (std::size_t i{}; i < this->length(); i++) {
-                ret.push_back(this->m_bin[i] ^ rhs.m_bin[i]);
-            }
-
-            return ret;
-        }
-
-        Binary Binary::operator^(const std::byte& rhs)
-        {
-            Binary ret{};
-
-            for (auto& e : this->m_bin) {
-                ret.push_back(e ^ rhs);
-            }
-
-            return ret;
         }
 
         std::ostream& operator<<(std::ostream& os, const Binary& p_Bin)

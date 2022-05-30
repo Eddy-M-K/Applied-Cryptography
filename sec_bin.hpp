@@ -37,10 +37,19 @@ namespace kim
              * - valid Binary string consisting of 1s and 0s (spaces are optional)
              * - OR a valid ASCII string
              */
-            Binary(const std::string&);
+            Binary(std::string);
+
+            /* Constructor which takes in a vector of bytes */
+            Binary(const std::vector<std::byte>&);
 
             /* Constructor which takes in a single byte */
             Binary(const std::byte&);
+
+            /* Constructor which takes in a Hexadecimal object */
+            Binary(const Hex&);
+
+            /* Constructor which takes in a Base64 object */
+            Binary(const Base64&);
 
             /* Copy Constructor */
             Binary(const Binary&);
@@ -67,7 +76,13 @@ namespace kim
             void                reserve(const std::vector<std::byte>::size_type);
 
             /* Appends a valid Binary string (spaces are optional) */
-            Binary&             append(const std::string&);
+            Binary&             append(std::string);
+
+            /* Returns a part of the Binary object
+             * - First argument is the index
+             * - Second argument is the length
+             */
+            Binary              subBin(const std::vector<std::byte>::size_type, const std::vector<std::byte>::size_type);
 
             /* Returns the Hexadecimal object equivalent of the Binary string */
             Hex                 to_Hex() const;
@@ -102,36 +117,10 @@ namespace kim
             /* Underlying Data Structure */
             std::vector<std::byte> m_bin;
 
-
-            /*** Private Member Functions ***/
-
-            /* Used for compatibility with template functions */
-            Binary              to_Bin() const;
-
-
-            /*** Private Member Operators ***/
-
-            /* Returns the XOR result of two equal-length Binary objects */
-            Binary              operator^(const Binary&);
-
-            /* Returns the result of XORing with a single-byte */
-            Binary              operator^(const std::byte&);
-
         /*** Friends ***/
 
         /* std::cout */
         friend std::ostream& operator<<(std::ostream&, const Binary&);
-
-        /* XOR of two containers */
-        template <class Container>
-        friend Container XOR(const Container& lhs, const Container& rhs);
-
-        /* XOR of container and byte */
-        template<class Container>
-        friend Container XOR(const Container& p_Con, const std::byte& p_byte);
-
-        template<class Container>
-        friend auto XOR_byte_dec(const std::string& p_str);
         };
     }
 }
