@@ -109,6 +109,7 @@ namespace kim
         Binary Hex::to_Bin() const
         {
             Binary ret{};
+
             ret.reserve(m_hex.length());
 
             for (std::size_t i{}; i < m_hex.length(); i += 2) {
@@ -120,54 +121,53 @@ namespace kim
 
         Base64 Hex::to_B64() const
         {
-            Base64 ret{};
+            Base64              ret{};
+            const Binary        this_Bin{this->to_Bin()};
+            std::size_t         index{};
+            const char          base64_table[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+                                                   'H', 'I', 'J', 'K', 'L', 'M', 'N',
+                                                   'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+                                                   'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
+                                                   'c', 'd', 'e', 'f', 'g', 'h', 'i',
+                                                   'j', 'k', 'l', 'm', 'n', 'o', 'p',
+                                                   'q', 'r', 's', 't', 'u', 'v', 'w',
+                                                   'x', 'y', 'z', '0', '1', '2', '3',
+                                                   '4', '5', '6', '7', '8', '9', '+', '/' };
+
             ret.reserve(m_hex.length() * 2 / 3 + (m_hex.length() * 2 % 3));
-
-            const char base64_table[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-                                          'H', 'I', 'J', 'K', 'L', 'M', 'N',
-                                          'O', 'P', 'Q', 'R', 'S', 'T', 'U',
-                                          'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
-                                          'c', 'd', 'e', 'f', 'g', 'h', 'i',
-                                          'j', 'k', 'l', 'm', 'n', 'o', 'p',
-                                          'q', 'r', 's', 't', 'u', 'v', 'w',
-                                          'x', 'y', 'z', '0', '1', '2', '3',
-                                          '4', '5', '6', '7', '8', '9', '+', '/' };
-
-            const Binary this_Bin{this->to_Bin()};
-            std::size_t index{};
 
             /* Loop through every 3 bytes of the binary representation of the hexadecimal
                string but only until the set that does not need padding */
             for (; index < (this_Bin.length() / 3) * 3; index += 3) {
-                std::string tmp_str{};
+                std::string append_str{};
 
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
+                append_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                append_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
                                              + std::to_integer<uint8_t>(this_Bin[index + 1] >> 4)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)
+                append_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)
                                              + std::to_integer<uint8_t>(this_Bin[index + 2] >> 6)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index + 2] & std::byte{0b00111111})]);
+                append_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index + 2] & std::byte{0b00111111})]);
 
-                ret.append(tmp_str);
+                ret.append(append_str);
             }
 
             /* If there are any remaining bytes, compute those and add padding */
-            const std::size_t remaining{this_Bin.length() % 3};
-            std::string tmp_str{};
+            const std::size_t       remaining{this_Bin.length() % 3};
+            std::string             append_str{};
 
             if (remaining == 1) {
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)]);
-                tmp_str.append("==");
+                append_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                append_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)]);
+                append_str.append("==");
             } else if (remaining == 2) {
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
+                append_str.push_back(base64_table[std::to_integer<uint8_t>(this_Bin[index] >> 2)]);
+                append_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index] & std::byte{0b00000011}) << 4)
                                              + std::to_integer<uint8_t>(this_Bin[index + 1] >> 4)]);
-                tmp_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)]);
-                tmp_str.push_back('=');
+                append_str.push_back(base64_table[std::to_integer<uint8_t>((this_Bin[index + 1] & std::byte{0b00001111}) << 2)]);
+                append_str.push_back('=');
             }
 
-            ret.append(tmp_str);
+            ret.append(append_str);
 
             return ret;
         }
