@@ -10,7 +10,6 @@
 #include <bitset>
 #include <limits>
 
-#include "types_hex.hpp"
 #include "types_bin.hpp"
 
 namespace kim
@@ -263,29 +262,39 @@ namespace kim
 
             for (uint8_t keysize_guess{2}; keysize_guess <= 40U; keysize_guess++) {
                 // printf("%d\n", keysize_guess);
-                if (keysize_guess * 4 > full_ct_Bin.length()) {
-                    std::cout << "BRUH" << std::endl;
+                if (keysize_guess > full_ct_Bin.length()) {
                     break;
                 }
 
-                std::size_t curr_hamming_norm{(Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                       full_ct_Bin.subBin(keysize_guess, keysize_guess)) +
-                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                       full_ct_Bin.subBin(2 * keysize_guess, keysize_guess)) +
-                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                       full_ct_Bin.subBin(3 * keysize_guess, keysize_guess)) +
-                                               Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                       full_ct_Bin.subBin(4 * keysize_guess, keysize_guess)))
-                                               / (4 * keysize_guess)};
+                std::size_t curr_hamming_norm{Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                      full_ct_Bin.subBin(keysize_guess, keysize_guess))};
+
+
+                std::size_t count{1};
+                for (; (count + 1) * keysize - 1 <= full_ct_Bin.length(); count++) {
+                    curr_hamming_norm += Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
+                                                                 full_ct_Bin.subBin((count + 1) * keysize_guess, keysize_guess));
+                }
+
+                curr_hamming_norm /= (keysize_guess * count);
 
                 if (curr_hamming_norm < min_hamming_norm) {
+                    // printf("%d %ld\n", keysize_guess, curr_hamming_norm);
                     min_hamming_norm = curr_hamming_norm;
                     keysize = keysize_guess;
-                    // printf("%ld, %d\n", curr_hamming_norm, keysize);
+                    printf("%ld, %d\n", curr_hamming_norm, keysize);
                 }
             }
 
-            // printf("%d\n", keysize);
+            // std::vector<Binary> blocks{keysize};
+
+            // for (std::vector<std::byte>::size_type ct_index{}; ct_index < full_ct_Bin.length(); ct_index += blocks) {
+            //     for (std::size_t block_index{}; block_index < blocks; block_index++) {
+            //         blocks[block_index].push_back(full_ct_Bin[ct_index + block_index]);
+            //     }
+            // }
+
+            // XOR_byte_dec()
 
             return std::fstream{};
         }
