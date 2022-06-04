@@ -17,16 +17,26 @@ namespace kim
 {
     namespace sec
     {
-        template<class Container>
-        Container XOR(const Container& lhs, const Container& rhs)
+        /* XORs two security types
+         *
+         * Template argument 1: The kim::sec security type of argument 1
+         * Template argument 2: The kim::sec security type of argument 2
+         *
+         * Argument 1: LHS of XOR operation (kim::sec security type)
+         * Argument 2: RHS of XOR operation (kim::sec security type)
+         *
+         * Return: The Binary object result of the XOR operation
+         */
+        template<class Container1, class Container2>
+        Binary XOR(const Container1& lhs, const Container2& rhs)
         {
-            if (lhs.length() != rhs.length()) {
-                throw std::invalid_argument("XOR operation of two buffers requires that they are equal in length");
-            }
-
             Binary      ret_Bin{};
             Binary      lhs_Bin{lhs};
             Binary      rhs_Bin{rhs};
+
+            if (lhs_Bin.length() != rhs_Bin.length()) {
+                throw std::invalid_argument("XOR operation of two buffers requires that they are equal in length");
+            }
 
             ret_Bin.reserve(lhs_Bin.length());
 
@@ -34,11 +44,20 @@ namespace kim
                 ret_Bin.push_back(lhs_Bin[index] ^ rhs_Bin[index]);
             }
 
-            return Container(ret_Bin);
+            return ret_Bin;
         }
 
+        /* XORs a security type and an std::byte
+         *
+         * Template argument: The input kim::sec security type
+         *
+         * Argument 1: LHS of XOR operation (kim::sec security type)
+         * Argument 2: RHS of XOR operation (std::byte)
+         *
+         * Return: The Binary object result of the XOR operation
+         */
         template<class Container>
-        Container XOR(const Container& p_Con, const std::byte& p_byte)
+        Binary XOR(const Container& p_Con, const std::byte& p_byte)
         {
             Binary      ret_Bin{};
             Binary      p_Con_Bin{p_Con};
@@ -49,9 +68,17 @@ namespace kim
                 ret_Bin.push_back(p_Con_Bin[index] ^ p_byte);
             }
 
-            return Container(ret_Bin);
+            return ret_Bin;
         }
 
+        /* Decrypts a XOR byte encrypted ciphertext string
+         *
+         * Template argument: The input kim::sec security type
+         *
+         * Argument: Ciphertext (kim::sec security type)
+         *
+         * Return: A tuple in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         */
         template<class Container>
         std::tuple<const std::size_t,
                    const Container,
@@ -65,23 +92,22 @@ namespace kim
             {
                 return (std::get<0>(lhs) > std::get<0>(rhs));
             }};
-            /* Set with each entry comprising of { Score | Ciphertext | Byte | Plaintext } */
+            /* Set with each entry comprising of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string } */
             std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret_set(cmp);
 
-            Binary          p_Con_Bin{p_Con};
-
-            const uint16_t    chr_freq[] = { 609, 105, 284, 292, 1136, 179,
-                                             138, 341, 544,  24,   41, 292,
-                                             276, 544, 600, 195,   24, 495,
-                                             568, 803, 243,  97,  138,  24,
-                                             130,   3 };
-            const char *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
-                                             "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
-                                              "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
-                                              "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
-                                             "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
-                                              "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
-                                              "(RS)",  "(US)" };
+            Binary              p_Con_Bin{p_Con};
+            const uint16_t      chr_freq[] = { 609, 105, 284, 292, 1136, 179,
+                                               138, 341, 544,  24,   41, 292,
+                                               276, 544, 600, 195,   24, 495,
+                                               568, 803, 243,  97,  138,  24,
+                                               130,   3 };
+            const char          *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
+                                                      "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
+                                                      "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                                      "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                                      "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
+                                                      "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                                      "(RS)",  "(US)" };
 
             uint8_t i{};
             do {
@@ -135,8 +161,16 @@ namespace kim
             }
         }
 
+        /* Decrypts a file with XOR byte encrypted ciphertext
+         *
+         * Template argument: The kim::sec security type of the input ciphertext
+         *
+         * Argument: Input file with the ciphertext (std::ifstream)
+         *
+         * Return: A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         */
         template <class Container>
-        auto XOR_byte_dec(std::ifstream p_File)
+        auto XOR_byte_dec(std::ifstream& p_File)
         {
             /* Custom comparator */
             auto cmp{ [](std::tuple<const std::size_t, const Container, const Binary, const std::string> lhs,
@@ -158,77 +192,84 @@ namespace kim
             return ret;
         }
 
-        /* Encrypting a string using repeating key XOR (key is a valid ASCII string) */
+        /* Encrypts a string using repeating key XOR
+         *
+         * Template argument: The kim::sec security type of the ciphertext return
+         *
+         * Argument 1: Plaintext to encrypt (std::string)
+         * Argument 2: Key (kim::sec::Binary)
+         *
+         * Return: Ciphertext in the specified kim::sec security type
+         */
         template <class Container>
-        Container XOR_rep_key_enc(const std::string& p_pt, const std::string& p_key)
+        Container XOR_rep_key_enc(const std::string& p_pt, const Binary& p_key)
         {
             if (p_key.empty()) {
                 throw std::invalid_argument("Key cannot be empty");
-            }
-
-            for (const char& e : p_key) {
-                if (!isascii(e)) {
-                    throw std::invalid_argument("Key contains invalid ASCII");
-                }
             }
 
             Binary      ret_Bin{};
             Binary      p_pt_Bin{p_pt};
-            Binary      p_key_Bin{p_key};
 
             ret_Bin.reserve(p_pt_Bin.length());
 
             for (std::size_t pt_index{}, key_index{}; pt_index < p_pt_Bin.length(); pt_index++, key_index++) {
-                if (key_index == p_key_Bin.length()) {
+                if (key_index == p_key.length()) {
                     key_index = 0;
                 }
 
-                ret_Bin.push_back(p_pt_Bin[pt_index] ^ p_key_Bin[key_index]);
+                ret_Bin.push_back(p_pt_Bin[pt_index] ^ p_key[key_index]);
             }
 
-            return Container(ret_Bin);
+            return Container{ret_Bin};
         }
 
-        /* Encrypting a text file with repeating key XOR (key is a valid ASCII string) */
+        /* Encrypts a text file with repeating key XOR
+         *
+         * Template argument: The kim::sec security type of the ciphertext return
+         *
+         * Argument 1: File with ciphertext to encrypt (std::ifstream)
+         * Argument 2: Key (kim::sec::Binary)
+         *
+         * Return: Ciphertext in the specified kim::sec security type
+         */
         template <class Container>
-        Container XOR_rep_key_enc(std::ifstream p_in_File, const std::string& p_key)
+        Container XOR_rep_key_enc(std::ifstream& p_in_File, const Binary& p_key)
         {
             if (p_key.empty()) {
                 throw std::invalid_argument("Key cannot be empty");
             }
 
-            for (const char& e : p_key) {
-                if (!isascii(e)) {
-                    throw std::invalid_argument("Key contains invalid ASCII");
-                }
-            }
-
             Binary      ret_Bin{};
-            Binary      p_key_Bin{p_key};
+            char        curr_chr{};
 
-            if (p_in_File.is_open()) {
-                char curr_chr{};
-                for (std::size_t key_index{}; p_in_File.get(curr_chr); key_index++) {
-                    if (key_index == p_key.length()) {
-                        key_index = 0;
-                    }
-
-                    if (!isascii(curr_chr)) {
-                        throw std::invalid_argument("Input file contains invalid ASCII");
-                    }
-
-                    ret_Bin.push_back(static_cast<std::byte>(curr_chr) ^ p_key_Bin[key_index]);
+            for (std::size_t key_index{}; p_in_File.get(curr_chr); key_index++) {
+                if (key_index == p_key.length()) {
+                    key_index = 0;
                 }
-            } else {
-                throw std::invalid_argument("Unable to open input file");
+
+                if (!isascii(curr_chr)) {
+                    throw std::invalid_argument("Input file contains invalid ASCII");
+                }
+
+                ret_Bin.push_back(static_cast<std::byte>(curr_chr) ^ p_key[key_index]);
             }
 
             ret_Bin.pop_back();
 
-            return Container(ret_Bin);
+            return Container{ret_Bin};
         }
 
-        /* Calculates the Hamming/edit distance between two Security Types (could be Binary strings or std::byte) */
+        /* Calculates the Hamming/edit distance between two kim::sec security types
+         *
+         * Template argument 1: std::string or the kim::sec security type of argument 1
+         * Template argument 2: std::string or the kim::sec security type of argument 2
+         *
+         * Argument 1: std::string or the first kim::sec security type object
+         * Argument 2: std::string or the second kim::sec security type object
+         *
+         * Return: The Hamming/edit distance (std::size_t)
+         */
         template <class Container1, class Container2>
         std::size_t Hamming(const Container1& lhs, const Container2& rhs)
         {
@@ -247,23 +288,24 @@ namespace kim
             return ret;
         }
 
+        /* Decrypts a file with XOR repeating key encrypted ciphertext
+         *
+         * Template argument: The kim::sec security type format of the ciphertext
+         *
+         * Argument 1: The input file with the ciphertext (std::ifstream)
+         * Argument 2: The output file name (std::string)
+         *
+         * Return: The output file (std::ofstream)
+         */
         template <class Container>
-        std::ofstream XOR_rep_key_dec(std::ifstream p_in_File)
+        std::ofstream XOR_rep_key_dec(std::ifstream& p_in_File, const std::string& p_out_name)
         {
-            std::ofstream       ret("out.txt");
+            std::ofstream       ret{p_out_name};
             std::string         full_ct{};
 
-            if (p_in_File.is_open()) {
-                std::string curr_line{};
-                while (getline(p_in_File, curr_line)) {
-                    full_ct += curr_line;
-                }
-            } else {
-                throw std::invalid_argument("Unable to open input file");
-            }
+            for (std::string curr_line{}; getline(p_in_File, curr_line); full_ct += curr_line) { }
 
-            Container               full_ct_Con{full_ct};
-            Binary                  full_ct_Bin{full_ct_Con};
+            Binary                  full_ct_Bin{Container{full_ct}};
             const std::size_t       full_ct_Bin_length{full_ct_Bin.length()};
             uint8_t                 keysize{2};
 
@@ -286,8 +328,9 @@ namespace kim
                 }
             }
 
-            std::unique_ptr<Binary[]> XOR_byte_blocks = std::make_unique<Binary[]>(keysize);
-            // Binary *XOR_byte_blocks = new Binary[keysize];
+            std::unique_ptr<Binary[]>       XOR_byte_blocks = std::make_unique<Binary[]>(keysize);
+            Binary                          key{};
+            Binary                          pt_Bin{};
 
             for (std::vector<std::byte>::size_type ct_block_index{}; ct_block_index < full_ct_Bin_length; ct_block_index += keysize) {
                 for (std::vector<std::byte>::size_type keysize_index{}; keysize_index < keysize; keysize_index++) {
@@ -298,13 +341,9 @@ namespace kim
                 }
             }
 
-            Binary key{};
-
             for (std::size_t index{}; index < keysize; index++) {
                 key += std::get<2>(XOR_byte_dec<kim::sec::Binary>(XOR_byte_blocks[index]));
             }
-
-            Binary pt_Bin{};
 
             for (std::size_t ct_index{}, key_index{}; ct_index < full_ct_Bin_length; ct_index++, key_index++) {
                 if (key_index == keysize) {
