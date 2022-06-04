@@ -4,5 +4,6 @@
 
 #include "sec_types.hpp"
 #include "sec_xor.hpp"
+#include "sec_aes.hpp"
 
 #endif /* KIM_SEC */
