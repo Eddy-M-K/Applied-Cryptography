@@ -236,7 +236,11 @@ namespace kim
                 if (byte_int > 127U) {
                     return "";
                 } else if (byte_int >= 0U && byte_int <= 31U) {
-                    ret += nonprint_ASCII[byte_int];
+                    if (byte_int == 10U) {
+                        ret += "\n";
+                    } else {
+                        ret += nonprint_ASCII[byte_int];
+                    }
                 } else if (byte_int == 127U) {
                     ret += "(DEL)";
                 } else {
