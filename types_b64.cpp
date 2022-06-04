@@ -105,7 +105,7 @@ namespace kim
                     p_str.erase(0, 1);
                     m_pad--;
                 }
-            } else if (m_pad == 1 == '=' && !p_str.empty()) {
+            } else if (m_pad == 1 && !p_str.empty()) {
                 m_b64[p_str_len - 1] == p_str[0];
                 p_str.erase(0, 1);
                 m_pad--;
