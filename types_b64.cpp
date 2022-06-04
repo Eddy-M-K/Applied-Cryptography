@@ -96,17 +96,17 @@ namespace kim
 
             /* Replace any original padding in the original Base64 string */
             if (m_pad == 2 && !p_str.empty()) {
-                m_b64[m_b64.length() - 2] == p_str[0];
+                m_b64[m_b64.length() - 2] = p_str[0];
                 p_str.erase(0, 1);
                 m_pad--;
 
                 if (!p_str.empty()) {
-                    m_b64[m_b64.length() - 1] == p_str[1];
+                    m_b64[m_b64.length() - 1] = p_str[1];
                     p_str.erase(0, 1);
                     m_pad--;
                 }
             } else if (m_pad == 1 && !p_str.empty()) {
-                m_b64[p_str_len - 1] == p_str[0];
+                m_b64[p_str_len - 1] = p_str[0];
                 p_str.erase(0, 1);
                 m_pad--;
             }
