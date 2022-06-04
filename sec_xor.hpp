@@ -9,6 +9,7 @@
 #include <tuple>
 #include <bitset>
 #include <limits>
+#include <memory>
 
 #include "types_bin.hpp"
 
@@ -52,7 +53,11 @@ namespace kim
         }
 
         template<class Container>
-        auto XOR_byte_dec(const std::string& p_str)
+        std::tuple<const std::size_t,
+                   const Container,
+                   const Binary,
+                   const std::string>
+        XOR_byte_dec(const Container& p_Con)
         {
             /* Custom comparator */
             auto cmp{ [](std::tuple<const std::size_t, const Container, const Binary, const std::string> lhs,
@@ -61,10 +66,9 @@ namespace kim
                 return (std::get<0>(lhs) > std::get<0>(rhs));
             }};
             /* Set with each entry comprising of { Score | Ciphertext | Byte | Plaintext } */
-            std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret(cmp);
+            std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret_set(cmp);
 
-            Container       p_str_Con{p_str};
-            Binary          this_Bin{p_str_Con.to_Bin()};
+            Binary          p_Con_Bin{p_Con};
 
             const uint16_t    chr_freq[] = { 609, 105, 284, 292, 1136, 179,
                                              138, 341, 544,  24,   41, 292,
@@ -81,7 +85,7 @@ namespace kim
 
             uint8_t i{};
             do {
-                Binary          XOR_result{XOR<Binary>(this_Bin, std::byte{i})};
+                Binary          XOR_result{XOR<Binary>(p_Con_Bin, std::byte{i})};
                 std::string     ASCII_string{};
                 std::size_t     score{};
 
@@ -119,12 +123,16 @@ namespace kim
                 }
 
                 if (!ASCII_string.empty()) {
-                    ret.insert(std::make_tuple(score, p_str_Con, Binary{std::byte{i}}, ASCII_string));
+                    ret_set.insert(std::make_tuple(score, p_Con, Binary{std::byte{i}}, ASCII_string));
                 }
 
             } while (i++ != UINT8_MAX);
 
-            return ret;
+            if (!ret_set.empty()) {
+                return *ret_set.begin();
+            } else {
+                return std::tuple<const std::size_t, const Container, const Binary, const std::string>{};
+            }
         }
 
         template <class Container>
@@ -141,9 +149,8 @@ namespace kim
 
             std::string line{};
             while (getline(p_File, line)) {
-                auto list{XOR_byte_dec<Container>(line)};
-                if (!list.empty()) {
-                    auto best_candidate{*list.begin()};
+                std::tuple<const std::size_t, const Container, const Binary, const std::string> best_candidate{XOR_byte_dec<Container>(Container{line})};
+                if (std::get<0>(best_candidate)) {
                     ret.insert(best_candidate);
                 }
             }
@@ -241,9 +248,9 @@ namespace kim
         }
 
         template <class Container>
-        std::fstream XOR_rep_key_dec(std::ifstream p_in_File)
+        std::ofstream XOR_rep_key_dec(std::ifstream p_in_File)
         {
-            std::fstream        ret("out.txt");
+            std::ofstream       ret("out.txt");
             std::string         full_ct{};
 
             if (p_in_File.is_open()) {
@@ -255,48 +262,61 @@ namespace kim
                 throw std::invalid_argument("Unable to open input file");
             }
 
-            Container       full_ct_Con{full_ct};
-            Binary          full_ct_Bin{full_ct_Con};
-            std::size_t     min_hamming_norm{std::numeric_limits<std::size_t>::max()};
-            uint8_t         keysize{2};
+            Container               full_ct_Con{full_ct};
+            Binary                  full_ct_Bin{full_ct_Con};
+            const std::size_t       full_ct_Bin_length{full_ct_Bin.length()};
+            uint8_t                 keysize{2};
 
-            for (uint8_t keysize_guess{2}; keysize_guess <= 40U; keysize_guess++) {
-                // printf("%d\n", keysize_guess);
-                if (keysize_guess > full_ct_Bin.length()) {
+            for (std::size_t keysize_guess{2}, min_hamming_norm{std::numeric_limits<std::size_t>::max()}; keysize_guess <= 40U; keysize_guess++) {
+                if (keysize_guess > full_ct_Bin_length) {
                     break;
                 }
 
-                std::size_t curr_hamming_norm{Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                      full_ct_Bin.subBin(keysize_guess, keysize_guess))};
-
-
-                std::size_t count{1};
-                for (; (count + 1) * keysize - 1 <= full_ct_Bin.length(); count++) {
+                std::size_t     curr_hamming_norm{};
+                std::size_t     count{1};
+                for (; (count + 1) * keysize_guess - 1 <= full_ct_Bin_length; count++) {
                     curr_hamming_norm += Hamming<Binary, Binary>(full_ct_Bin.subBin(0, keysize_guess),
-                                                                 full_ct_Bin.subBin((count + 1) * keysize_guess, keysize_guess));
+                                                                 full_ct_Bin.subBin(count * keysize_guess, keysize_guess));
                 }
-
                 curr_hamming_norm /= (keysize_guess * count);
 
                 if (curr_hamming_norm < min_hamming_norm) {
-                    // printf("%d %ld\n", keysize_guess, curr_hamming_norm);
                     min_hamming_norm = curr_hamming_norm;
                     keysize = keysize_guess;
-                    printf("%ld, %d\n", curr_hamming_norm, keysize);
                 }
             }
 
-            // std::vector<Binary> blocks{keysize};
+            std::unique_ptr<Binary[]> XOR_byte_blocks = std::make_unique<Binary[]>(keysize);
+            // Binary *XOR_byte_blocks = new Binary[keysize];
 
-            // for (std::vector<std::byte>::size_type ct_index{}; ct_index < full_ct_Bin.length(); ct_index += blocks) {
-            //     for (std::size_t block_index{}; block_index < blocks; block_index++) {
-            //         blocks[block_index].push_back(full_ct_Bin[ct_index + block_index]);
-            //     }
-            // }
+            for (std::vector<std::byte>::size_type ct_block_index{}; ct_block_index < full_ct_Bin_length; ct_block_index += keysize) {
+                for (std::vector<std::byte>::size_type keysize_index{}; keysize_index < keysize; keysize_index++) {
+                    if (ct_block_index + keysize_index > full_ct_Bin_length) {
+                        break;
+                    }
+                    XOR_byte_blocks[keysize_index].push_back(full_ct_Bin[ct_block_index + keysize_index]);
+                }
+            }
 
-            // XOR_byte_dec()
+            Binary key{};
 
-            return std::fstream{};
+            for (std::size_t index{}; index < keysize; index++) {
+                key += std::get<2>(XOR_byte_dec<kim::sec::Binary>(XOR_byte_blocks[index]));
+            }
+
+            Binary pt_Bin{};
+
+            for (std::size_t ct_index{}, key_index{}; ct_index < full_ct_Bin_length; ct_index++, key_index++) {
+                if (key_index == keysize) {
+                    key_index = 0;
+                }
+
+                pt_Bin.push_back(key[key_index] ^ full_ct_Bin[ct_index]);
+            }
+
+            ret << pt_Bin.to_ASCII();
+
+            return ret;
         }
     }
 }
