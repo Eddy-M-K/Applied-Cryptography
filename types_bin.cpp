@@ -59,9 +59,9 @@ namespace kim
             }
         }
 
-        Binary::Binary(const std::vector<std::byte>& p_vec) : m_bin(p_vec) { }
+        Binary::Binary(const std::vector<std::byte>& p_vec) : m_bin{p_vec} { }
 
-        Binary::Binary(const std::byte& p_byte) : m_bin(1, p_byte) { }
+        Binary::Binary(const std::byte& p_byte) : m_bin{p_byte} { }
 
         Binary::Binary(const Hex& p_Hex)
         {
