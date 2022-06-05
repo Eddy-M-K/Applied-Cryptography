@@ -10,6 +10,7 @@
 #include <bitset>
 #include <limits>
 #include <memory>
+#include <queue>
 
 #include "types_bin.hpp"
 
@@ -86,14 +87,16 @@ namespace kim
                    const std::string>
         XOR_byte_dec(const Container& p_Con)
         {
+            using score_entry = std::tuple<std::size_t, Container, Binary, std::string>;
             /* Custom comparator */
-            auto cmp{ [](std::tuple<const std::size_t, const Container, const Binary, const std::string> lhs,
-                         std::tuple<const std::size_t, const Container, const Binary, const std::string> rhs)
-            {
-                return (std::get<0>(lhs) > std::get<0>(rhs));
-            }};
-            /* Set with each entry comprising of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string } */
-            std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret_set(cmp);
+            auto cmp{ [](const score_entry& lhs, const score_entry& rhs)
+                      {
+                          return (std::get<0>(lhs) < std::get<0>(rhs));
+                      }};
+            /* Priority Queue with each entry comprising of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string } */
+            std::priority_queue<score_entry,
+                                std::vector<score_entry>,
+                                decltype(cmp)> ret_pqueue(cmp);
 
             Binary              p_Con_Bin{p_Con};
             const uint16_t      chr_freq[] = { 609, 105, 284, 292, 1136, 179,
@@ -103,11 +106,11 @@ namespace kim
                                                130,   3 };
             const char          *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
                                                       "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
-                                                      "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
-                                                      "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                                       "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                                       "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
                                                       "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
-                                                      "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
-                                                      "(RS)",  "(US)" };
+                                                       "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                                       "(RS)",  "(US)" };
 
             uint8_t i{};
             do {
@@ -149,15 +152,15 @@ namespace kim
                 }
 
                 if (!ASCII_string.empty()) {
-                    ret_set.insert(std::make_tuple(score, p_Con, Binary{std::byte{i}}, ASCII_string));
+                    ret_pqueue.push(std::make_tuple(score, p_Con, Binary{std::byte{i}}, ASCII_string));
                 }
 
             } while (i++ != UINT8_MAX);
 
-            if (!ret_set.empty()) {
-                return *ret_set.begin();
+            if (!ret_pqueue.empty()) {
+                return ret_pqueue.top();
             } else {
-                return std::tuple<const std::size_t, const Container, const Binary, const std::string>{};
+                return score_entry{};
             }
         }
 
@@ -172,18 +175,18 @@ namespace kim
         template <class Container>
         auto XOR_byte_dec(std::ifstream& p_File)
         {
+            using score_entry = std::tuple<const std::size_t, const Container, const Binary, const std::string>;
             /* Custom comparator */
-            auto cmp{ [](std::tuple<const std::size_t, const Container, const Binary, const std::string> lhs,
-                         std::tuple<const std::size_t, const Container, const Binary, const std::string> rhs)
+            auto cmp{ [](const score_entry& lhs, const score_entry& rhs)
             {
                 return (std::get<0>(lhs) > std::get<0>(rhs));
             }};
             /* Set comprising of the best candidates in the format { Score | Ciphertext | Byte | Plaintext } */
-            std::set<std::tuple<const std::size_t, const Container, const Binary, const std::string>, decltype(cmp)> ret(cmp);
+            std::set<score_entry, decltype(cmp)> ret(cmp);
 
             std::string line{};
             while (getline(p_File, line)) {
-                std::tuple<const std::size_t, const Container, const Binary, const std::string> best_candidate{XOR_byte_dec<Container>(Container{line})};
+                score_entry best_candidate{XOR_byte_dec<Container>(Container{line})};
                 if (std::get<0>(best_candidate)) {
                     ret.insert(best_candidate);
                 }
