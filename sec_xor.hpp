@@ -31,7 +31,7 @@ namespace kim
         template<class Container1, class Container2>
         Binary XOR(const Container1& lhs, const Container2& rhs)
         {
-            Binary      ret_Bin{};
+            Binary      ret{};
             Binary      lhs_Bin{lhs};
             Binary      rhs_Bin{rhs};
 
@@ -39,13 +39,13 @@ namespace kim
                 throw std::invalid_argument("XOR operation of two buffers requires that they are equal in length");
             }
 
-            ret_Bin.reserve(lhs_Bin.length());
+            ret.reserve(lhs_Bin.length());
 
             for (std::vector<std::byte>::size_type index{}; index < lhs_Bin.length(); index++) {
-                ret_Bin.push_back(lhs_Bin[index] ^ rhs_Bin[index]);
+                ret.push_back(lhs_Bin[index] ^ rhs_Bin[index]);
             }
 
-            return ret_Bin;
+            return ret;
         }
 
         /* XORs a security type and an std::byte
@@ -60,16 +60,16 @@ namespace kim
         template<class Container>
         Binary XOR(const Container& p_Con, const std::byte& p_byte)
         {
-            Binary      ret_Bin{};
+            Binary      ret{};
             Binary      p_Con_Bin{p_Con};
 
-            ret_Bin.reserve(p_Con_Bin.length());
+            ret.reserve(p_Con_Bin.length());
 
             for (std::vector<std::byte>::size_type index{}; index < p_Con_Bin.length(); index++) {
-                ret_Bin.push_back(p_Con_Bin[index] ^ p_byte);
+                ret.push_back(p_Con_Bin[index] ^ p_byte);
             }
 
-            return ret_Bin;
+            return ret;
         }
 
         /* Decrypts a XOR byte encrypted ciphertext string
@@ -211,20 +211,20 @@ namespace kim
                 throw std::invalid_argument("Key cannot be empty");
             }
 
-            Binary      ret_Bin{};
+            Binary      ret{};
             Binary      p_pt_Bin{p_pt};
 
-            ret_Bin.reserve(p_pt_Bin.length());
+            ret.reserve(p_pt_Bin.length());
 
             for (std::size_t pt_index{}, key_index{}; pt_index < p_pt_Bin.length(); pt_index++, key_index++) {
                 if (key_index == p_key.length()) {
                     key_index = 0;
                 }
 
-                ret_Bin.push_back(p_pt_Bin[pt_index] ^ p_key[key_index]);
+                ret.push_back(p_pt_Bin[pt_index] ^ p_key[key_index]);
             }
 
-            return Container{ret_Bin};
+            return Container{ret};
         }
 
         /* Encrypts a text file with repeating key XOR
@@ -243,7 +243,7 @@ namespace kim
                 throw std::invalid_argument("Key cannot be empty");
             }
 
-            Binary      ret_Bin{};
+            Binary      ret{};
             char        curr_chr{};
 
             for (std::size_t key_index{}; p_in_File.get(curr_chr); key_index++) {
@@ -255,12 +255,12 @@ namespace kim
                     throw std::invalid_argument("Input file contains invalid ASCII");
                 }
 
-                ret_Bin.push_back(static_cast<std::byte>(curr_chr) ^ p_key[key_index]);
+                ret.push_back(static_cast<std::byte>(curr_chr) ^ p_key[key_index]);
             }
 
-            ret_Bin.pop_back();
+            ret.pop_back();
 
-            return Container{ret_Bin};
+            return Container{ret};
         }
 
         /* Calculates the Hamming/edit distance between two kim::sec security types
