@@ -26,7 +26,7 @@ namespace kim
          * Argument 1: LHS of XOR operation (kim::sec security type)
          * Argument 2: RHS of XOR operation (kim::sec security type)
          *
-         * Return: The Binary object result of the XOR operation
+         * Returns: The Binary object result of the XOR operation
          */
         template<class Container1, class Container2>
         Binary XOR(const Container1& lhs, const Container2& rhs)
@@ -55,7 +55,7 @@ namespace kim
          * Argument 1: LHS of XOR operation (kim::sec security type)
          * Argument 2: RHS of XOR operation (std::byte)
          *
-         * Return: The Binary object result of the XOR operation
+         * Returns: The Binary object result of the XOR operation
          */
         template<class Container>
         Binary XOR(const Container& p_Con, const std::byte& p_byte)
@@ -78,7 +78,7 @@ namespace kim
          *
          * Argument: Ciphertext (kim::sec security type)
          *
-         * Return: A tuple in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         * Returns: A tuple in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template<class Container>
         std::tuple<const std::size_t,
@@ -104,13 +104,13 @@ namespace kim
                                                276, 544, 600, 195,   24, 495,
                                                568, 803, 243,  97,  138,  24,
                                                130,   3 };
-            const char          *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
-                                                      "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
-                                                       "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
-                                                       "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
-                                                      "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
-                                                       "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
-                                                       "(RS)",  "(US)" };
+            const char*         nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
+                                                     "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
+                                                      "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                                      "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                                     "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
+                                                      "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                                      "(RS)",  "(US)" };
 
             uint8_t i{};
             do {
@@ -170,7 +170,7 @@ namespace kim
          *
          * Argument: Input file with the ciphertext (std::ifstream)
          *
-         * Return: A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         * Returns: A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template <class Container>
         auto XOR_byte_dec(std::ifstream& p_File)
@@ -178,14 +178,13 @@ namespace kim
             using score_entry = std::tuple<const std::size_t, const Container, const Binary, const std::string>;
             /* Custom comparator */
             auto cmp{ [](const score_entry& lhs, const score_entry& rhs)
-            {
-                return (std::get<0>(lhs) > std::get<0>(rhs));
-            }};
+                      {
+                          return (std::get<0>(lhs) > std::get<0>(rhs));
+                      }};
             /* Set comprising of the best candidates in the format { Score | Ciphertext | Byte | Plaintext } */
             std::set<score_entry, decltype(cmp)> ret(cmp);
 
-            std::string line{};
-            while (getline(p_File, line)) {
+            for (std::string line{}; getline(p_File, line);) {
                 score_entry best_candidate{XOR_byte_dec<Container>(Container{line})};
                 if (std::get<0>(best_candidate)) {
                     ret.insert(best_candidate);
@@ -202,7 +201,7 @@ namespace kim
          * Argument 1: Plaintext to encrypt (std::string)
          * Argument 2: Key (kim::sec::Binary)
          *
-         * Return: Ciphertext in the specified kim::sec security type
+         * Returns: Ciphertext in the specified kim::sec security type
          */
         template <class Container>
         Container XOR_rep_key_enc(const std::string& p_pt, const Binary& p_key)
@@ -234,7 +233,7 @@ namespace kim
          * Argument 1: File with ciphertext to encrypt (std::ifstream)
          * Argument 2: Key (kim::sec::Binary)
          *
-         * Return: Ciphertext in the specified kim::sec security type
+         * Returns: Ciphertext in the specified kim::sec security type
          */
         template <class Container>
         Container XOR_rep_key_enc(std::ifstream& p_in_File, const Binary& p_key)
@@ -271,7 +270,7 @@ namespace kim
          * Argument 1: std::string or the first kim::sec security type object
          * Argument 2: std::string or the second kim::sec security type object
          *
-         * Return: The Hamming/edit distance (std::size_t)
+         * Returns: The Hamming/edit distance (std::size_t)
          */
         template <class Container1, class Container2>
         std::size_t Hamming(const Container1& lhs, const Container2& rhs)
@@ -298,7 +297,7 @@ namespace kim
          * Argument 1: The input file with the ciphertext (std::ifstream)
          * Argument 2: The output file name (std::string)
          *
-         * Return: The output file (std::ofstream)
+         * Returns: The output file (std::ofstream)
          */
         template <class Container>
         std::ofstream XOR_rep_key_dec(std::ifstream& p_in_File, const std::string& p_out_name)
