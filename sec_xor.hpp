@@ -1,4 +1,7 @@
-/* XOR Template Header File */
+/*
+ * @brief XOR Template Header File
+ * @author Edward Kim
+ */
 #ifndef SEC_XOR
 #define SEC_XOR
 
@@ -18,15 +21,16 @@ namespace kim
 {
     namespace sec
     {
-        /* XORs two security types
+        /*
+         * @brief Performs the XOR operation of two kim::sec security types
          *
-         * Template argument 1: The kim::sec security type of argument 1
-         * Template argument 2: The kim::sec security type of argument 2
+         * @param Container1 Template parameter for lhs parameter (kim::sec security type)
+         * @param Container2 Template parameter for rhs parameter (kim::sec security type)
          *
-         * Argument 1: LHS of XOR operation (kim::sec security type)
-         * Argument 2: RHS of XOR operation (kim::sec security type)
+         * @param lhs Left-hand side of XOR operation (kim::sec security type)
+         * @param rhs Right-hand side of XOR operation (kim::sec security type)
          *
-         * Returns: The Binary object result of the XOR operation
+         * @return The kim::sec::Binary object result of the XOR operation
          */
         template<class Container1, class Container2>
         Binary XOR(const Container1& lhs, const Container2& rhs)
@@ -48,14 +52,15 @@ namespace kim
             return ret;
         }
 
-        /* XORs a security type and an std::byte
+        /*
+         * @brief Performs the XOR operation of a kim::sec security type and an std::byte
          *
-         * Template argument: The input kim::sec security type
+         * @param Container Template parameter for p_Con parameter (kim::sec security type)
          *
-         * Argument 1: LHS of XOR operation (kim::sec security type)
-         * Argument 2: RHS of XOR operation (std::byte)
+         * @param p_Con Left-hand side of XOR operation (kim::sec security type)
+         * @param p_byte Right-hand side of XOR operation (std::byte)
          *
-         * Returns: The Binary object result of the XOR operation
+         * @return The kim::sec::Binary object result of the XOR operation
          */
         template<class Container>
         Binary XOR(const Container& p_Con, const std::byte& p_byte)
@@ -72,31 +77,30 @@ namespace kim
             return ret;
         }
 
-        /* Decrypts a XOR byte encrypted ciphertext string
+        /*
+         * @brief Decrypts a XOR byte encrypted ciphertext string
          *
-         * Template argument: The input kim::sec security type
+         * @param Container Template parameter for input ciphertext (kim::sec security type)
          *
-         * Argument: Ciphertext (kim::sec security type)
+         * @param p_Con Ciphertext (kim::sec security type)
          *
-         * Returns: A tuple in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         * @return A tuple consisting of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template<class Container>
-        std::tuple<const std::size_t,
-                   const Container,
-                   const Binary,
-                   const std::string>
-        XOR_byte_dec(const Container& p_Con)
+        std::tuple<const std::size_t, const Container, const Binary, const std::string> XOR_byte_dec(const Container& p_Con)
         {
             using score_entry = std::tuple<std::size_t, Container, Binary, std::string>;
+
             /* Custom comparator */
-            auto cmp{ [](const score_entry& lhs, const score_entry& rhs)
-                      {
-                          return (std::get<0>(lhs) < std::get<0>(rhs));
-                      }};
-            /* Priority Queue with each entry comprising of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string } */
-            std::priority_queue<score_entry,
-                                std::vector<score_entry>,
-                                decltype(cmp)> ret_pqueue(cmp);
+            auto cmp{
+                        [](const score_entry& lhs, const score_entry& rhs)
+                        {
+                            return (std::get<0>(lhs) < std::get<0>(rhs));
+                        }
+                    };
+
+            /* Priority Queue of score entries */
+            std::priority_queue<score_entry, std::vector<score_entry>, decltype(cmp)> ret_pqueue(cmp);
 
             Binary              p_Con_Bin{p_Con};
             const uint16_t      chr_freq[] = { 609, 105, 284, 292, 1136, 179,
@@ -164,24 +168,29 @@ namespace kim
             }
         }
 
-        /* Decrypts a file with XOR byte encrypted ciphertext
+        /*
+         * @brief Decrypts a file with XOR byte encrypted ciphertext
          *
-         * Template argument: The kim::sec security type of the input ciphertext
+         * @param Container Template parameter for input ciphertext (kim::sec security type)
          *
-         * Argument: Input file with the ciphertext (std::ifstream)
+         * @param p_File Input file with the ciphertext (std::ifstream)
          *
-         * Returns: A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
+         * @return A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template <class Container>
         auto XOR_byte_dec(std::ifstream& p_File)
         {
             using score_entry = std::tuple<const std::size_t, const Container, const Binary, const std::string>;
+
             /* Custom comparator */
-            auto cmp{ [](const score_entry& lhs, const score_entry& rhs)
-                      {
-                          return (std::get<0>(lhs) > std::get<0>(rhs));
-                      }};
-            /* Set comprising of the best candidates in the format { Score | Ciphertext | Byte | Plaintext } */
+            auto cmp{
+                        [](const score_entry& lhs, const score_entry& rhs)
+                        {
+                            return (std::get<0>(lhs) > std::get<0>(rhs));
+                        }
+                    };
+
+            /* Set comprising of the best candidates in the format { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string } */
             std::set<score_entry, decltype(cmp)> ret(cmp);
 
             for (std::string line{}; getline(p_File, line);) {
@@ -194,14 +203,15 @@ namespace kim
             return ret;
         }
 
-        /* Encrypts a string using repeating key XOR
+        /*
+         * @brief Encrypts a string using repeating key XOR
          *
-         * Template argument: The kim::sec security type of the ciphertext return
+         * @param Container Template parameter for the type of the ciphertext return (kim::sec security type)
          *
-         * Argument 1: Plaintext to encrypt (std::string)
-         * Argument 2: Key (kim::sec::Binary)
+         * @param p_pt Plaintext to encrypt (std::string)
+         * @param p_key Key to use for encryption (kim::sec::Binary)
          *
-         * Returns: Ciphertext in the specified kim::sec security type
+         * @return Ciphertext in the specified kim::sec security type
          */
         template <class Container>
         Container XOR_rep_key_enc(const std::string& p_pt, const Binary& p_key)
@@ -226,14 +236,15 @@ namespace kim
             return Container{ret};
         }
 
-        /* Encrypts a text file with repeating key XOR
+        /*
+         * @brief Encrypts a text file with repeating key XOR
          *
-         * Template argument: The kim::sec security type of the ciphertext return
+         * @param Container Template parameter for the type of the ciphertext return (kim::sec security type)
          *
-         * Argument 1: File with ciphertext to encrypt (std::ifstream)
-         * Argument 2: Key (kim::sec::Binary)
+         * @param p_in_File File with plaintext to encrypt (std::ifstream)
+         * @param p_key Key to use for encryption (kim::sec::Binary)
          *
-         * Returns: Ciphertext in the specified kim::sec security type
+         * @return Ciphertext in the specified kim::sec security type
          */
         template <class Container>
         Container XOR_rep_key_enc(std::ifstream& p_in_File, const Binary& p_key)
@@ -257,20 +268,22 @@ namespace kim
                 ret.push_back(static_cast<std::byte>(curr_chr) ^ p_key[key_index]);
             }
 
+            /* Pop back one byte since files have a trailing LF */
             ret.pop_back();
 
             return Container{ret};
         }
 
-        /* Calculates the Hamming/edit distance between two kim::sec security types
+        /*
+         * @brief Calculates the Hamming/edit distance between two kim::sec security types
          *
-         * Template argument 1: std::string or the kim::sec security type of argument 1
-         * Template argument 2: std::string or the kim::sec security type of argument 2
+         * @param Container1 Template parameter for lhs parameter (std::string or kim::sec security type)
+         * @param Container2 Template parameter for rhs parameter (std::string or kim::sec security type)
          *
-         * Argument 1: std::string or the first kim::sec security type object
-         * Argument 2: std::string or the second kim::sec security type object
+         * @param lhs Left-hand side of Hamming/edit distance calculation (std::string or kim::sec security type)
+         * @param rhs Right-hand side of Hamming/edit distance calculation (std::string or kim::sec security type)
          *
-         * Returns: The Hamming/edit distance (std::size_t)
+         * @return The Hamming/edit distance (std::size_t)
          */
         template <class Container1, class Container2>
         std::size_t Hamming(const Container1& lhs, const Container2& rhs)
@@ -290,14 +303,15 @@ namespace kim
             return ret;
         }
 
-        /* Decrypts a file with XOR repeating key encrypted ciphertext
+        /*
+         * @brief Decrypts a file containing XOR repeating key encrypted ciphertext
          *
-         * Template argument: The kim::sec security type format of the ciphertext
+         * @param Container Template parameter for the type of the ciphertext (kim::sec security type)
          *
-         * Argument 1: The input file with the ciphertext (std::ifstream)
-         * Argument 2: The output file name (std::string)
+         * @param p_in_File The input file containing the ciphertext (std::ifstream)
+         * @param p_out_name The output file name (std::string)
          *
-         * Returns: The output file (std::ofstream)
+         * @return File with plaintext (std::ofstream)
          */
         template <class Container>
         std::ofstream XOR_rep_key_dec(std::ifstream& p_in_File, const std::string& p_out_name)
