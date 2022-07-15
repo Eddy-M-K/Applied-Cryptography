@@ -1,9 +1,14 @@
-/* AES Template Header File */
+/*
+ * @brief AES Template Header File
+ * @author Edward Kim
+ */
 #ifndef SEC_AES
 #define SEC_AES
 
 #include <fstream>
 #include <array>
+
+#include <cstddef>
 
 #include "sec_xor.hpp"
 #include "sec_types.hpp"
@@ -12,22 +17,22 @@ namespace kim
 {
     namespace sec
     {
-        static inline void rev_sub_bytes(std::array<std::array<int, 4>, 4>& p_state_array)
+        static inline void rev_sub_bytes(std::array<std::array<std::byte, 4>, 4>& p_state_array)
         {
             return;
         }
 
-        static inline void rev_shift_rows(std::array<std::array<int, 4>, 4>& p_state_array)
+        static inline void rev_shift_rows(std::array<std::array<std::byte, 4>, 4>& p_state_array)
         {
             return;
         }
 
-        static inline void rev_mix_columns(std::array<std::array<int, 4>, 4>& p_state_array)
+        static inline void rev_mix_columns(std::array<std::array<std::byte, 4>, 4>& p_state_array)
         {
             return;
         }
 
-        static inline void add_round_key(std::array<std::array<int, 4>, 4>& p_state_array)
+        static inline void add_round_key(std::array<std::array<std::byte, 4>, 4>& p_state_array)
         {
             return;
         }
