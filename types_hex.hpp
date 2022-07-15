@@ -1,4 +1,7 @@
-/* "Security Types: Hexadecimal" Header File */
+/*
+ * @brief kim::sec::Hex Header File
+ * @author Edward Kim
+ */
 #ifndef TYPES_HEX
 #define TYPES_HEX
 

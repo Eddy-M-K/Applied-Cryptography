@@ -1,4 +1,7 @@
-/* "Security Types: Base64" Source File */
+/*
+ * @brief kim::sec::Base64 Source File
+ * @author Edward Kim
+ */
 #include "types_b64.hpp"
 
 #include <stdexcept>

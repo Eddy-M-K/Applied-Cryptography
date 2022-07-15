@@ -1,4 +1,7 @@
-/* "Security Types: Base64" Header File */
+/*
+ * @brief kim::sec::Base64 Header File
+ * @author Edward Kim
+ */
 #ifndef TYPES_B64
 #define TYPES_B64
 

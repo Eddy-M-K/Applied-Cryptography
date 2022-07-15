@@ -1,4 +1,7 @@
-/* "Security Types: Hexadecimal" Source File */
+/*
+ * @brief kim::sec::Hex Source File
+ * @author Edward Kim
+ */
 #include "types_hex.hpp"
 
 #include <stdexcept>

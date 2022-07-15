@@ -1,4 +1,7 @@
-/* "Security Types: Binary" Source File */
+/*
+ * @brief kim::sec::Binary Source File
+ * @author Edward Kim
+ */
 #include "types_bin.hpp"
 
 #include <bitset>

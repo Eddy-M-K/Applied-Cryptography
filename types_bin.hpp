@@ -1,4 +1,7 @@
-/* "Security Types: Binary" Header File */
+/*
+ * @brief kim::sec::Binary Header File
+ * @author Edward Kim
+ */
 #ifndef TYPES_BIN
 #define TYPES_BIN
 

@@ -1,4 +1,7 @@
-/* "Security Types" Header File */
+/*
+ * @brief kim::sec Security Types Header File
+ * @author Edward Kim
+ */
 #ifndef SEC_TYPES
 #define SEC_TYPES
 
