@@ -1,4 +1,7 @@
-/* Eddy Kim Security Header File */
+/* 
+ * @brief kim::sec Header File 
+ * @author Edward Kim
+ */
 #ifndef KIM_SEC
 #define KIM_SEC
 
