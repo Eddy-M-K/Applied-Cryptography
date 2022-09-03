@@ -25,19 +25,29 @@ namespace kim
          * @brief Performs the XOR operation of two kim::sec security types
          *
          * @param Container1 Template parameter for lhs parameter (kim::sec security type)
-         * @param Container2 Template parameter for rhs parameter (kim::sec security type)
+         * @param Container2 Template parameter for rhs parameter (kim::sec security type) - defaults to std::byte if no template argument
          *
          * @param lhs Left-hand side of XOR operation (kim::sec security type)
          * @param rhs Right-hand side of XOR operation (kim::sec security type)
          *
          * @return The kim::sec::Binary object result of the XOR operation
          */
-        template<class Container1, class Container2>
+        template<class Container1, class Container2 = std::byte>
         Binary XOR(const Container1& lhs, const Container2& rhs)
         {
             Binary      ret{};
             Binary      lhs_Bin{lhs};
             Binary      rhs_Bin{rhs};
+
+            if (rhs_Bin.length() == 1) {
+                ret.reserve(lhs_Bin.length());
+
+                for (std::vector<std::byte>::size_type index{}; index < lhs_Bin.length(); index++) {
+                    ret.push_back(lhs_Bin[index] ^ rhs_Bin[0]);
+                }
+
+                return ret;
+            }
 
             if (lhs_Bin.length() != rhs_Bin.length()) {
                 throw std::invalid_argument("XOR operation of two buffers requires that they are equal in length");
@@ -47,31 +57,6 @@ namespace kim
 
             for (std::vector<std::byte>::size_type index{}; index < lhs_Bin.length(); index++) {
                 ret.push_back(lhs_Bin[index] ^ rhs_Bin[index]);
-            }
-
-            return ret;
-        }
-
-        /*
-         * @brief Performs the XOR operation of a kim::sec security type and an std::byte
-         *
-         * @param Container Template parameter for p_Con parameter (kim::sec security type)
-         *
-         * @param p_Con Left-hand side of XOR operation (kim::sec security type)
-         * @param p_byte Right-hand side of XOR operation (std::byte)
-         *
-         * @return The kim::sec::Binary object result of the XOR operation
-         */
-        template<class Container>
-        Binary XOR(const Container& p_Con, const std::byte& p_byte)
-        {
-            Binary      ret{};
-            Binary      p_Con_Bin{p_Con};
-
-            ret.reserve(p_Con_Bin.length());
-
-            for (std::vector<std::byte>::size_type index{}; index < p_Con_Bin.length(); index++) {
-                ret.push_back(p_Con_Bin[index] ^ p_byte);
             }
 
             return ret;
@@ -116,50 +101,52 @@ namespace kim
                                                       "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
                                                       "(RS)",  "(US)" };
 
-            uint8_t i{};
-            do {
-                Binary          XOR_result{XOR<Binary>(p_Con_Bin, std::byte{i})};
-                std::string     ASCII_string{};
-                std::size_t     score{};
+            {
+                uint8_t i{};
+                do {
+                    Binary          XOR_result{XOR<Binary>(p_Con_Bin, std::byte{i})};
+                    std::string     ASCII_string{};
+                    std::size_t     score{};
 
-                for (std::size_t k{}; k < XOR_result.length(); k++) {
-                    uint8_t byte_int{std::to_integer<uint8_t>(XOR_result[k])};
+                    for (std::size_t k{}; k < XOR_result.length(); k++) {
+                        uint8_t byte_int{std::to_integer<uint8_t>(XOR_result[k])};
 
-                    /* Invalid ASCII */
-                    if (!isascii(byte_int)) {
-                        ASCII_string = "";
-                        break;
-                    /* Unprintable ASCII */
-                    } else if (byte_int >= 0U && byte_int <= 31U) {
-                        ASCII_string += nonprint_ASCII[byte_int];
-                    /* DEL character */
-                    } else if (byte_int == 127U) {
-                        ASCII_string += "(DEL)";
-                    /* Space */
-                    } else if (byte_int == 32) {
-                        ASCII_string += ' ';
-                        score += 1217;
-                    /* Characters */
-                    } else {
-                        const char tmp_chr{static_cast<char>(byte_int)};
-
-                        /* Alphabet */
-                        if (isalpha(tmp_chr)) {
-                            score += chr_freq[toupper(tmp_chr) - 'A'];
-                        /* Numbers/Symbols */
+                        /* Invalid ASCII */
+                        if (!isascii(byte_int)) {
+                            ASCII_string = "";
+                            break;
+                        /* Unprintable ASCII */
+                        } else if (byte_int >= 0U && byte_int <= 31U) {
+                            ASCII_string += nonprint_ASCII[byte_int];
+                        /* DEL character */
+                        } else if (byte_int == 127U) {
+                            ASCII_string += "(DEL)";
+                        /* Space */
+                        } else if (byte_int == 32) {
+                            ASCII_string += ' ';
+                            score += 1217;
+                        /* Characters */
                         } else {
-                            score += 16;
+                            const char tmp_chr{static_cast<char>(byte_int)};
+
+                            /* Alphabet */
+                            if (isalpha(tmp_chr)) {
+                                score += chr_freq[toupper(tmp_chr) - 'A'];
+                            /* Numbers/Symbols */
+                            } else {
+                                score += 16;
+                            }
+
+                            ASCII_string += tmp_chr;
                         }
-
-                        ASCII_string += tmp_chr;
                     }
-                }
 
-                if (!ASCII_string.empty()) {
-                    ret_pqueue.push(std::make_tuple(score, p_Con, Binary{std::byte{i}}, ASCII_string));
-                }
+                    if (!ASCII_string.empty()) {
+                        ret_pqueue.push(std::make_tuple(score, p_Con, Binary{std::byte{i}}, ASCII_string));
+                    }
 
-            } while (i++ != UINT8_MAX);
+                } while (i++ != UINT8_MAX);
+            }
 
             if (!ret_pqueue.empty()) {
                 return ret_pqueue.top();
