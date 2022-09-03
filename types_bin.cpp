@@ -227,11 +227,11 @@ namespace kim
             std::string     ret{};
             const char      *nonprint_ASCII[] = { "(NUL)", "(SOH)", "(STX)", "(ETX)", "(EOT)",
                                                   "(ENQ)", "(ACK)", "(BEL)",  "(BS)",  "(HT)",
-                                                  "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
-                                                  "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
+                                                   "(LF)",  "(VT)",  "(FF)",  "(CR)",  "(SO)",
+                                                   "(SI)", "(DLE)", "(DC1)", "(DC2)", "(DC3)",
                                                   "(DC4)", "(NAK)", "(SYN)", "(ETB)", "(CAN)",
-                                                  "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
-                                                  "(RS)",  "(US)" };
+                                                   "(EM)", "(SUB)", "(ESC)",  "(FS)",  "(GS)",
+                                                   "(RS)",  "(US)" };
 
             for (const std::byte& e : m_bin) {
                 uint8_t byte_int{std::to_integer<uint8_t>(e)};
