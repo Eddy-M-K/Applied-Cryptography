@@ -72,7 +72,7 @@ namespace kim
          * @return A tuple consisting of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template<class Container>
-        std::tuple<const std::size_t, const Container, const Binary, const std::string> XOR_byte_dec(const Container& p_Con)
+        std::tuple<std::size_t, Container, Binary, std::string> XOR_byte_dec(const Container& p_Con)
         {
             using score_entry = std::tuple<std::size_t, Container, Binary, std::string>;
 
@@ -165,9 +165,9 @@ namespace kim
          * @return A set with tuples in the form of { Score: std::size_t | Ciphertext: Container | Byte: Binary | Plaintext: std::string }
          */
         template <class Container>
-        auto XOR_byte_dec(std::ifstream& p_File)
+        auto XOR_byte_dec(std::ifstream p_File)
         {
-            using score_entry = std::tuple<const std::size_t, const Container, const Binary, const std::string>;
+            using score_entry = std::tuple<std::size_t, Container, Binary, std::string>;
 
             /* Custom comparator */
             auto cmp{
@@ -234,7 +234,7 @@ namespace kim
          * @return Ciphertext in the specified kim::sec security type
          */
         template <class Container>
-        Container XOR_rep_key_enc(std::ifstream& p_in_File, const Binary& p_key)
+        Container XOR_rep_key_enc(std::ifstream p_in_File, const Binary& p_key)
         {
             if (p_key.empty()) {
                 throw std::invalid_argument("Key cannot be empty");
@@ -301,7 +301,7 @@ namespace kim
          * @return File with plaintext (std::ofstream)
          */
         template <class Container>
-        std::ofstream XOR_rep_key_dec(std::ifstream& p_in_File, const std::string& p_out_name)
+        std::ofstream XOR_rep_key_dec(std::ifstream p_in_File, const std::string& p_out_name)
         {
             std::ofstream       ret{p_out_name};
             std::string         full_ct{};
